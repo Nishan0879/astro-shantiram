@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { siteTimeZone } from "./site";
 
 export const ADMIN_COOKIE = "admin_token";
 
@@ -60,9 +61,9 @@ export async function adminJson<T>(path: string): Promise<T> {
 }
 
 export function formatDate(iso: string) {
-  return new Intl.DateTimeFormat("en-GB", {
+  return new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
-    timeZone: "Asia/Kathmandu",
+    timeZone: siteTimeZone,
   }).format(new Date(iso));
 }

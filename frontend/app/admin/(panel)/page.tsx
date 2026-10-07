@@ -13,16 +13,17 @@ export default function OverviewPage() {
         <Metrics />
       </Suspense>
       <p className="mt-8 text-sm text-charcoal/60">
-        Appointments, events and the gallery will appear here as they are added.
+        Appointments and the gallery will appear here as they are added.
       </p>
     </>
   );
 }
 
 async function Metrics() {
-  const [{ counts, total }, { articles }] = await Promise.all([
+  const [{ counts, total }, { articles }, { events }] = await Promise.all([
     adminJson<MessageList>("/api/admin/contact-messages"),
     adminJson<{ articles: { status: string }[] }>("/api/admin/articles"),
+    adminJson<{ events: { status: string; isUpcoming: boolean }[] }>("/api/admin/events"),
   ]);
   const cards = [
     { label: "New messages", value: counts.new, href: "/admin/messages?status=new", highlight: counts.new > 0 },
@@ -32,6 +33,11 @@ async function Metrics() {
       label: "Published articles",
       value: articles.filter((a) => a.status === "published").length,
       href: "/admin/articles",
+    },
+    {
+      label: "Upcoming events",
+      value: events.filter((e) => e.status === "published" && e.isUpcoming).length,
+      href: "/admin/events",
     },
   ];
 

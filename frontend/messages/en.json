@@ -10,6 +10,7 @@
     "about": "About Guru",
     "services": "Services",
     "articles": "Articles",
+    "events": "Events",
     "contact": "Contact",
     "book": "Book Consultation",
     "language": "Language"
@@ -101,6 +102,30 @@
       "dharma": "Dharma",
       "guidance": "Astrology guidance"
     }
+  },
+  "Events": {
+    "title": "Events",
+    "intro": "Festivals, pujas, pravachan and workshops with Guruji.",
+    "upcoming": "Upcoming",
+    "past": "Past events",
+    "emptyUpcoming": "No upcoming events right now. Please check back soon.",
+    "emptyPast": "No past events yet.",
+    "details": "Details",
+    "back": "All events",
+    "localTime": "Central time (US)",
+    "timeZoneShort": "CT",
+    "register": "Register",
+    "youtube": "Watch on YouTube",
+    "zoom": "Join on Zoom",
+    "pastNote": "This event has already taken place.",
+    "otherLanguage": "Details for this event are not available in English yet, so they are shown in {language}.",
+    "languages": {
+      "en": "English",
+      "ne": "Nepali",
+      "sa": "Sanskrit"
+    },
+    "previous": "Previous",
+    "next": "Next"
   },
   "Contact": {
     "title": "Contact",

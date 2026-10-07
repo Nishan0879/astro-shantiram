@@ -71,7 +71,7 @@ async function Message({ params }: Pick<PageProps<"/admin/messages/[id]">, "para
           </>
         )}
         <dt className="text-charcoal/60">Received</dt>
-        <dd>{formatDate(m.createdAt)} (Nepal time)</dd>
+        <dd>{formatDate(m.createdAt)} (Central time)</dd>
       </dl>
 
       <p className="mt-5 whitespace-pre-wrap break-words border-t border-gold/20 pt-4">{m.message}</p>

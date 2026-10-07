@@ -1,4 +1,4 @@
-import { pgTable, primaryKey, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { date, pgTable, primaryKey, text, time, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 
 export const contactMessages = pgTable("contact_messages", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -83,3 +83,34 @@ export const articleTranslations = pgTable(
 
 export type Article = typeof articles.$inferSelect;
 export type ArticleTranslation = typeof articleTranslations.$inferSelect;
+
+export const events = pgTable("events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  slug: varchar("slug", { length: 120 }).notNull().unique(),
+  status: varchar("status", { length: 16 }).$type<"draft" | "published">().notNull().default("draft"),
+  // US Central date and times, as the organiser types them
+  eventDate: date("event_date").notNull(),
+  startTime: time("start_time"),
+  endTime: time("end_time"),
+  registrationUrl: varchar("registration_url", { length: 500 }),
+  youtubeUrl: varchar("youtube_url", { length: 500 }),
+  zoomUrl: varchar("zoom_url", { length: 500 }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const eventTranslations = pgTable(
+  "event_translations",
+  {
+    eventId: uuid("event_id")
+      .notNull()
+      .references(() => events.id, { onDelete: "cascade" }),
+    locale: varchar("locale", { length: 8 }).$type<ContentLocale>().notNull(),
+    name: varchar("name", { length: 200 }).notNull(),
+    location: varchar("location", { length: 200 }),
+    description: text("description"),
+  },
+  (t) => [primaryKey({ columns: [t.eventId, t.locale] })],
+);
+
+export type Event = typeof events.$inferSelect;
