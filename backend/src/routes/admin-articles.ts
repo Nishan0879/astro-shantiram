@@ -4,11 +4,12 @@ import { z } from "zod";
 import type { Database } from "../db/client.js";
 import { articles, articleTranslations } from "../db/schema.js";
 import { type ArticleInput, articleInputSchema, translationRows } from "../services/articles.js";
+import type { Media } from "../services/media.js";
 
 const idParam = z.uuid();
 
 /** Article management for the admin dashboard; mount behind requireAuth. */
-export function adminArticlesRouter({ db }: { db: Database }) {
+export function adminArticlesRouter({ db, media }: { db: Database; media?: Media }) {
   const router = Router();
 
   async function slugTaken(slug: string, exceptId?: string) {
@@ -21,7 +22,12 @@ export function adminArticlesRouter({ db }: { db: Database }) {
 
   function parseInput(body: unknown): { input?: ArticleInput; fieldErrors?: Record<string, string> } {
     const parsed = articleInputSchema.safeParse(body);
-    if (parsed.success) return { input: parsed.data };
+    if (parsed.success) {
+      const { coverUrl } = parsed.data;
+      // Only photos uploaded to our own storage, never arbitrary links
+      if (coverUrl && !media?.owns(coverUrl)) return { fieldErrors: { coverUrl: "Upload the photo again" } };
+      return { input: parsed.data };
+    }
     // Flatten paths like translations.ne.title so the form can show each one
     const fieldErrors: Record<string, string> = {};
     for (const issue of parsed.error.issues) fieldErrors[issue.path.join(".")] ??= issue.message;
@@ -82,6 +88,7 @@ export function adminArticlesRouter({ db }: { db: Database }) {
           slug: input.slug,
           category: input.category,
           status: input.status,
+          coverUrl: input.coverUrl,
           publishedAt: input.status === "published" ? new Date() : null,
           authorId: res.locals.user.id,
         })
@@ -116,6 +123,7 @@ export function adminArticlesRouter({ db }: { db: Database }) {
           slug: input.slug,
           category: input.category,
           status: input.status,
+          coverUrl: input.coverUrl,
           publishedAt: existing.publishedAt ?? (input.status === "published" ? new Date() : null),
           updatedAt: new Date(),
         })

@@ -11,8 +11,9 @@ import ArticleForm from "../ArticleForm";
 
 export const metadata: Metadata = { title: "Edit article" };
 
-type AdminArticle = Omit<ArticleFormValues, "translations"> & {
+type AdminArticle = Omit<ArticleFormValues, "translations" | "coverUrl"> & {
   id: string;
+  coverUrl: string | null;
   translations: Partial<Record<string, { title: string; summary: string | null; body: string }>>;
 };
 
@@ -41,6 +42,7 @@ async function Editor({ params, searchParams }: Pick<PageProps<"/admin/articles/
     slug: article.slug,
     category: article.category,
     status: article.status,
+    coverUrl: article.coverUrl ?? "",
     translations: Object.fromEntries(
       contentLocales.map((l) => {
         const t = article.translations[l];

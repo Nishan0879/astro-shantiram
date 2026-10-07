@@ -17,6 +17,12 @@ export const articleInputSchema = z
       .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers and dashes"),
     category: z.enum(articleCategories),
     status: z.enum(["draft", "published"]),
+    coverUrl: z
+      .string()
+      .trim()
+      .max(500)
+      .default("")
+      .transform((v) => v || null),
     translations: z.partialRecord(z.enum(contentLocales), translationSchema),
   })
   .superRefine((input, ctx) => {

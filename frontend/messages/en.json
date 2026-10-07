@@ -11,6 +11,7 @@
     "services": "Services",
     "articles": "Articles",
     "events": "Events",
+    "gallery": "Gallery",
     "contact": "Contact",
     "book": "Book Consultation",
     "language": "Language"
@@ -126,6 +127,25 @@
     },
     "previous": "Previous",
     "next": "Next"
+  },
+  "Gallery": {
+    "title": "Gallery",
+    "intro": "Moments from pujas, events and Guruji's journeys.",
+    "all": "All",
+    "empty": "No photos here yet.",
+    "close": "Close",
+    "previous": "Previous",
+    "next": "Next",
+    "play": "Play video",
+    "categories": {
+      "guruji": "Guruji",
+      "temple": "Temple",
+      "puja": "Puja",
+      "events": "Events",
+      "community": "Community",
+      "spiritual": "Spiritual activities",
+      "travel": "Travel"
+    }
   },
   "Contact": {
     "title": "Contact",

@@ -56,7 +56,17 @@ export function articlesRouter({ db }: { db: Database }) {
     const list = rows.flatMap((a) => {
       const t = pickTranslation(translations.filter((t) => t.articleId === a.id), locale);
       if (!t) return [];
-      return [{ slug: a.slug, category: a.category, publishedAt: a.publishedAt, locale: t.locale, title: t.title, summary: t.summary }];
+      return [
+        {
+          slug: a.slug,
+          category: a.category,
+          publishedAt: a.publishedAt,
+          coverUrl: a.coverUrl,
+          locale: t.locale,
+          title: t.title,
+          summary: t.summary,
+        },
+      ];
     });
     res.json({ articles: list, total, page, pageSize: PAGE_SIZE });
   });
@@ -86,6 +96,7 @@ export function articlesRouter({ db }: { db: Database }) {
         category: article.category,
         publishedAt: article.publishedAt,
         updatedAt: article.updatedAt,
+        coverUrl: article.coverUrl,
         locale: t.locale,
         title: t.title,
         summary: t.summary,

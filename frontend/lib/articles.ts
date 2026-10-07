@@ -22,6 +22,7 @@ export type ArticleSummary = {
   locale: ContentLocale;
   title: string;
   summary: string | null;
+  coverUrl: string | null;
 };
 
 export type PublicArticle = ArticleSummary & { body: string; updatedAt: string; locales: ContentLocale[] };

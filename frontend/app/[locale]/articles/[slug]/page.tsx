@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import Markdown from "react-markdown";
 import { Link } from "@/i18n/navigation";
 import type { PublicArticle } from "@/lib/articles";
+import { cloudinaryImage } from "@/lib/media";
 import { publicJson } from "@/lib/public-api";
 
 async function getArticle(slug: string, locale: string) {
@@ -20,7 +21,10 @@ async function getCachedTitle(slug: string, locale: string) {
   cacheLife("minutes");
   try {
     const article = await getArticle(slug, locale);
-    return article ? { title: article.title, description: article.summary ?? undefined } : null;
+    if (!article) return null;
+    // The cover photo becomes the preview image when the article is shared on Facebook or WhatsApp
+    const images = article.coverUrl ? [cloudinaryImage(article.coverUrl, "c_fill,g_auto,w_1200,h_630")] : undefined;
+    return { title: article.title, description: article.summary ?? undefined, openGraph: { images } };
   } catch {
     return null;
   }
@@ -64,6 +68,14 @@ async function ArticleBody({ params }: Pick<PageProps<"/[locale]/articles/[slug]
         </p>
       )}
       <article lang={article.locale} className="mt-6">
+        {article.coverUrl && (
+          // eslint-disable-next-line @next/next/no-img-element -- Cloudinary resizes it
+          <img
+            src={cloudinaryImage(article.coverUrl, "c_fill,g_auto,w_1200,h_630")}
+            alt=""
+            className="mb-6 aspect-[1200/630] w-full rounded-xl object-cover"
+          />
+        )}
         <p className="text-sm text-gold">
           {t(`categories.${article.category}`)} ·{" "}
           {format.dateTime(new Date(article.publishedAt), { dateStyle: "long" })}

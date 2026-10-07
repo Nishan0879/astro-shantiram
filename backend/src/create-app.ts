@@ -6,12 +6,15 @@ import { requireAuth, requireRole } from "./middleware/auth.js";
 import { errorHandler, notFound } from "./middleware/errors.js";
 import { adminArticlesRouter } from "./routes/admin-articles.js";
 import { adminEventsRouter } from "./routes/admin-events.js";
+import { adminGalleryRouter, adminUploadsRouter } from "./routes/admin-media.js";
 import { adminMessagesRouter } from "./routes/admin-messages.js";
 import { articlesRouter } from "./routes/articles.js";
 import { eventsRouter } from "./routes/events.js";
+import { galleryRouter } from "./routes/gallery.js";
 import { authRouter, type BootstrapAdmin } from "./routes/auth.js";
 import { contactRouter } from "./routes/contact.js";
 import type { Mailer } from "./services/mailer.js";
+import type { Media } from "./services/media.js";
 
 // Vercel's builder type-checks files as CommonJS, where helmet's default import
 // is typed as the module object. At runtime it is the middleware either way.
@@ -25,6 +28,7 @@ export type AppDeps = {
   internalApiKey?: string;
   jwtSecret?: string;
   bootstrapAdmin?: BootstrapAdmin;
+  media?: Media;
 };
 
 export function createApp({
@@ -35,6 +39,7 @@ export function createApp({
   internalApiKey,
   jwtSecret,
   bootstrapAdmin,
+  media,
 }: AppDeps) {
   const app = express();
 
@@ -53,7 +58,7 @@ export function createApp({
     "/api/admin/articles",
     requireAuth(db, jwtSecret),
     requireRole("super_admin", "content_admin", "guru"),
-    adminArticlesRouter({ db }),
+    adminArticlesRouter({ db, media }),
   );
   app.use("/api/events", eventsRouter({ db }));
   app.use(
@@ -62,6 +67,10 @@ export function createApp({
     requireRole("super_admin", "content_admin", "guru"),
     adminEventsRouter({ db }),
   );
+  app.use("/api/gallery", galleryRouter({ db }));
+  const contentEditors = [requireAuth(db, jwtSecret), requireRole("super_admin", "content_admin", "guru")];
+  app.use("/api/admin/uploads", ...contentEditors, adminUploadsRouter({ media }));
+  app.use("/api/admin/gallery", ...contentEditors, adminGalleryRouter({ db, media }));
   app.use(
     "/api/admin/contact-messages",
     requireAuth(db, jwtSecret),
