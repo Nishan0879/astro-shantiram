@@ -1,3 +1,4 @@
+import type { UploadFolder } from "@/lib/media";
 import { signUpload } from "./media-actions";
 
 export type UploadedPhoto = { url: string; publicId: string; width: number; height: number };
@@ -7,7 +8,7 @@ export type UploadedPdf = { url: string; publicId: string; pages: number | null 
 const MAX_BYTES = 10 * 1024 * 1024;
 
 /** Uploads one photo from the browser straight to Cloudinary. Throws a readable message on failure. */
-export async function uploadPhoto(file: File, folder: "gallery" | "articles" | "books"): Promise<UploadedPhoto> {
+export async function uploadPhoto(file: File, folder: UploadFolder): Promise<UploadedPhoto> {
   if (!file.type.startsWith("image/")) throw new Error(`${file.name} is not a photo.`);
   const body = await upload(file, folder);
   return { url: body.secure_url, publicId: body.public_id, width: body.width, height: body.height };
@@ -22,7 +23,7 @@ export async function uploadPdf(file: File): Promise<UploadedPdf> {
 
 type CloudinaryUpload = { secure_url: string; public_id: string; width: number; height: number; pages?: number };
 
-async function upload(file: File, folder: "gallery" | "articles" | "books"): Promise<CloudinaryUpload> {
+async function upload(file: File, folder: UploadFolder): Promise<CloudinaryUpload> {
   if (file.size > MAX_BYTES) throw new Error(`${file.name} is larger than 10 MB, the most Cloudinary's free plan accepts.`);
 
   const sig = await signUpload(folder);

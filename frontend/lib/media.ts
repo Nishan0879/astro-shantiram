@@ -3,6 +3,9 @@
 export const galleryCategories = ["guruji", "temple", "puja", "events", "community", "spiritual", "travel"] as const;
 export type GalleryCategory = (typeof galleryCategories)[number];
 
+/** Cloudinary folders the admin can upload into */
+export type UploadFolder = "gallery" | "articles" | "books" | "services";
+
 /**
  * Asks Cloudinary for a resized, compressed copy (WebP/AVIF where the browser supports it),
  * e.g. cloudinaryImage(url, "c_fill,w_600,h_600").

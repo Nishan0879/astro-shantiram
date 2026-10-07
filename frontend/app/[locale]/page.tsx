@@ -7,7 +7,7 @@ import ZodiacGrid from "@/components/ZodiacGrid";
 import { Link } from "@/i18n/navigation";
 import type { PublicEdition } from "@/lib/horoscopes";
 import { publicJson } from "@/lib/public-api";
-import { astrologyServices, pujaServices } from "@/lib/services";
+import { serviceCategories, type ServiceSummary } from "@/lib/services";
 import { facebookFeedUrl, facebookPageUrl, youtubeChannelUrl } from "@/lib/site";
 import type { VideoList } from "@/lib/videos";
 
@@ -16,7 +16,6 @@ export default function HomePage({ params }: PageProps<"/[locale]">) {
   setRequestLocale(locale);
   const t = useTranslations("Home");
   const site = useTranslations("Site");
-  const s = useTranslations("Services");
 
   return (
     <>
@@ -49,24 +48,9 @@ export default function HomePage({ params }: PageProps<"/[locale]">) {
         <div className="mx-auto max-w-6xl px-4 py-16">
           <h2 className="text-center font-serif text-3xl text-maroon">{t("servicesTitle")}</h2>
           <p className="mx-auto mt-4 max-w-2xl text-center">{t("servicesText")}</p>
-          <div className="mt-10 grid gap-8 md:grid-cols-2">
-            {[
-              { title: t("astrologyTitle"), keys: astrologyServices.slice(0, 6), group: "astrology" },
-              { title: t("pujaTitle"), keys: pujaServices.slice(0, 6), group: "puja" },
-            ].map((col) => (
-              <div key={col.group} className="rounded-xl border border-gold/30 bg-warm-white p-6">
-                <h3 className="font-serif text-2xl text-maroon">{col.title}</h3>
-                <ul className="mt-4 space-y-2">
-                  {col.keys.map((key) => (
-                    <li key={key} className="flex gap-2">
-                      <span className="text-gold">✦</span>
-                      {s(`${col.group}.${key}`)}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+          <Suspense fallback={<div className="mt-10 h-72" />}>
+            <ServiceColumns locale={locale} />
+          </Suspense>
           <div className="mt-8 text-center">
             <Link href="/services" className="text-saffron hover:underline">
               {t("allServices")} →
@@ -93,6 +77,49 @@ export default function HomePage({ params }: PageProps<"/[locale]">) {
         </Link>
       </section>
     </>
+  );
+}
+
+async function ServiceColumns({ locale }: { locale: string }) {
+  // Load the list for each visit, so changes in the admin show up right away
+  await connection();
+  let services: ServiceSummary[] = [];
+  try {
+    services = (await publicJson<{ services: ServiceSummary[] }>(`/api/services?locale=${locale}`))?.services ?? [];
+  } catch {
+    // The home page still works if the list cannot be loaded
+  }
+  if (services.length === 0) return null;
+  return <ServiceColumnList services={services} />;
+}
+
+function ServiceColumnList({ services }: { services: ServiceSummary[] }) {
+  const t = useTranslations("Home");
+  return (
+    <div className="mt-10 grid gap-8 md:grid-cols-2">
+      {serviceCategories.map((category) => (
+        <div key={category} className="rounded-xl border border-gold/30 bg-warm-white p-6">
+          <h3 className="font-serif text-2xl text-maroon">
+            <Link href={`/services#${category}`} className="hover:text-saffron">
+              {t(`${category}Title`)}
+            </Link>
+          </h3>
+          <ul className="mt-4 space-y-2">
+            {services
+              .filter((s) => s.category === category)
+              .slice(0, 6)
+              .map((s) => (
+                <li key={s.slug} className="flex gap-2">
+                  <span className="text-gold">✦</span>
+                  <Link href={`/services/${s.slug}`} lang={s.locale} className="hover:text-saffron">
+                    {s.name}
+                  </Link>
+                </li>
+              ))}
+          </ul>
+        </div>
+      ))}
+    </div>
   );
 }
 

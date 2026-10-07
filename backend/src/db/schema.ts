@@ -293,3 +293,52 @@ export const horoscopeReadings = pgTable(
   },
   (t) => [primaryKey({ columns: [t.editionId, t.sign, t.locale] })],
 );
+
+// Astrology consultations and pujas. Each one has its own page; price and duration are set in the admin.
+export const serviceCategories = ["astrology", "puja"] as const;
+export type ServiceCategory = (typeof serviceCategories)[number];
+
+// How a service can be done: at the temple/office, at the family's home, over the phone, or on Zoom
+export const serviceModes = ["in_person", "home_visit", "phone", "zoom"] as const;
+export type ServiceMode = (typeof serviceModes)[number];
+
+export const services = pgTable("services", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  slug: varchar("slug", { length: 120 }).notNull().unique(),
+  category: varchar("category", { length: 16 }).$type<ServiceCategory>().notNull(),
+  status: varchar("status", { length: 16 }).$type<"draft" | "published">().notNull().default("draft"),
+  // Lower numbers are listed first within their category
+  sortOrder: integer("sort_order").notNull().default(0),
+  // US dollars in cents; empty means "ask for the price"
+  priceCents: integer("price_cents"),
+  // Shows "From $51" instead of "$51" when the final price depends on the details
+  priceFrom: boolean("price_from").notNull().default(false),
+  durationMinutes: integer("duration_minutes"),
+  modes: jsonb("modes").$type<ServiceMode[]>().notNull().default([]),
+  // Off shows "Not taking requests right now" instead of the request button
+  bookingOpen: boolean("booking_open").notNull().default(true),
+  imageUrl: varchar("image_url", { length: 500 }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Name and every piece of descriptive writing per site language
+export const serviceTranslations = pgTable(
+  "service_translations",
+  {
+    serviceId: uuid("service_id")
+      .notNull()
+      .references(() => services.id, { onDelete: "cascade" }),
+    locale: varchar("locale", { length: 8 }).$type<ContentLocale>().notNull(),
+    name: varchar("name", { length: 200 }).notNull(),
+    summary: varchar("summary", { length: 300 }),
+    description: text("description"),
+    purpose: text("purpose"),
+    requirements: text("requirements"),
+    location: varchar("location", { length: 300 }),
+    availability: varchar("availability", { length: 300 }),
+  },
+  (t) => [primaryKey({ columns: [t.serviceId, t.locale] })],
+);
+
+export type Service = typeof services.$inferSelect;
