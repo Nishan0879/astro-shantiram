@@ -3,7 +3,9 @@ import { setRequestLocale } from "next-intl/server";
 import { connection } from "next/server";
 import { Suspense, use } from "react";
 import VideoCard from "@/components/VideoCard";
+import ZodiacGrid from "@/components/ZodiacGrid";
 import { Link } from "@/i18n/navigation";
+import type { PublicEdition } from "@/lib/horoscopes";
 import { publicJson } from "@/lib/public-api";
 import { astrologyServices, pujaServices } from "@/lib/services";
 import { facebookFeedUrl, facebookPageUrl, youtubeChannelUrl } from "@/lib/site";
@@ -72,6 +74,10 @@ export default function HomePage({ params }: PageProps<"/[locale]">) {
           </div>
         </div>
       </section>
+
+      <Suspense>
+        <TodaysHoroscope locale={locale} />
+      </Suspense>
 
       <Suspense>
         <LatestPravachan locale={locale} />
@@ -153,6 +159,36 @@ function FacebookUpdates() {
           {t("facebookLink")} ↗
         </a>
       </div>
+    </section>
+  );
+}
+
+/** The sign picker, once Guruji has written a daily horoscope. */
+async function TodaysHoroscope({ locale }: { locale: string }) {
+  await connection();
+  let edition: PublicEdition | null = null;
+  try {
+    edition = (await publicJson<{ edition: PublicEdition | null }>(`/api/horoscopes/current?period=daily&locale=${locale}`))?.edition ?? null;
+  } catch {
+    // The home page still works if horoscopes cannot be loaded
+  }
+  if (!edition) return null;
+  return <HoroscopeSection />;
+}
+
+function HoroscopeSection() {
+  const t = useTranslations("Home");
+  const h = useTranslations("Horoscope");
+  return (
+    <section className="mx-auto max-w-4xl px-4 py-16 text-center">
+      <h2 className="font-serif text-3xl text-maroon">{t("horoscopeTitle")}</h2>
+      <p className="mx-auto mt-4 max-w-2xl">{t("horoscopeText")}</p>
+      <div className="mt-8">
+        <ZodiacGrid compact />
+      </div>
+      <Link href="/horoscope" className="mt-6 inline-block text-saffron hover:underline">
+        {h("title")} →
+      </Link>
     </section>
   );
 }

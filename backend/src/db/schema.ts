@@ -1,4 +1,4 @@
-import { boolean, date, integer, jsonb, pgTable, primaryKey, text, time, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { boolean, date, index, integer, jsonb, pgTable, primaryKey, text, time, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 
 export const contactMessages = pgTable("contact_messages", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -223,4 +223,73 @@ export const videoTranslations = pgTable(
     description: text("description"),
   },
   (t) => [primaryKey({ columns: [t.videoId, t.locale] })],
+);
+
+// Horoscopes: Guruji writes an edition (a day, week, month, year, festival or special update)
+// with a reading for each of the twelve rashis
+export const zodiacSigns = [
+  "mesha",
+  "vrishabha",
+  "mithuna",
+  "karka",
+  "simha",
+  "kanya",
+  "tula",
+  "vrishchika",
+  "dhanu",
+  "makara",
+  "kumbha",
+  "meena",
+] as const;
+export type ZodiacSign = (typeof zodiacSigns)[number];
+
+export const horoscopePeriods = ["daily", "weekly", "monthly", "yearly", "festival", "special"] as const;
+export type HoroscopePeriod = (typeof horoscopePeriods)[number];
+
+export const horoscopeEditions = pgTable(
+  "horoscope_editions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    period: varchar("period", { length: 16 }).$type<HoroscopePeriod>().notNull(),
+    // The day, or the first day of the week, month or year it covers (US Central)
+    startsOn: date("starts_on").notNull(),
+    status: varchar("status", { length: 16 }).$type<"draft" | "published">().notNull().default("draft"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("horoscope_editions_period_starts_on_idx").on(t.period, t.startsOn)],
+);
+
+// A title (needed for festival and special editions) and an optional note for all signs, per language
+export const horoscopeEditionTranslations = pgTable(
+  "horoscope_edition_translations",
+  {
+    editionId: uuid("edition_id")
+      .notNull()
+      .references(() => horoscopeEditions.id, { onDelete: "cascade" }),
+    locale: varchar("locale", { length: 8 }).$type<ContentLocale>().notNull(),
+    title: varchar("title", { length: 200 }),
+    intro: text("intro"),
+  },
+  (t) => [primaryKey({ columns: [t.editionId, t.locale] })],
+);
+
+// One sign's reading in one language
+export const horoscopeReadings = pgTable(
+  "horoscope_readings",
+  {
+    editionId: uuid("edition_id")
+      .notNull()
+      .references(() => horoscopeEditions.id, { onDelete: "cascade" }),
+    sign: varchar("sign", { length: 16 }).$type<ZodiacSign>().notNull(),
+    locale: varchar("locale", { length: 8 }).$type<ContentLocale>().notNull(),
+    overview: text("overview").notNull(),
+    career: text("career"),
+    finance: text("finance"),
+    relationships: text("relationships"),
+    health: text("health"),
+    spiritual: text("spiritual"),
+    lucky: varchar("lucky", { length: 300 }),
+  },
+  (t) => [primaryKey({ columns: [t.editionId, t.sign, t.locale] })],
 );

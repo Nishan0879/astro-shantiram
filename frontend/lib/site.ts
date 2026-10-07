@@ -23,3 +23,6 @@ export function facebookFeedUrl(width: number) {
   });
   return `https://www.facebook.com/plugins/page.php?${query}`;
 }
+
+/** Today's date in US Central time, as YYYY-MM-DD. */
+export const todayInSiteZone = (now = new Date()) => new Intl.DateTimeFormat("en-CA", { timeZone: siteTimeZone }).format(now);
