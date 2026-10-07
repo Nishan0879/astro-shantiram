@@ -3,7 +3,7 @@ import { Router } from "express";
 import { z } from "zod";
 import type { Database } from "../db/client.js";
 import { articleCategories, articles, articleTranslations, contentLocales } from "../db/schema.js";
-import { pickTranslation } from "../services/articles.js";
+import { pickTranslation } from "../services/translations.js";
 
 const PAGE_SIZE = 12;
 

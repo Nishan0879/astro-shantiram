@@ -5,8 +5,10 @@ import type { Database } from "./db/client.js";
 import { requireAuth, requireRole } from "./middleware/auth.js";
 import { errorHandler, notFound } from "./middleware/errors.js";
 import { adminArticlesRouter } from "./routes/admin-articles.js";
+import { adminEventsRouter } from "./routes/admin-events.js";
 import { adminMessagesRouter } from "./routes/admin-messages.js";
 import { articlesRouter } from "./routes/articles.js";
+import { eventsRouter } from "./routes/events.js";
 import { authRouter, type BootstrapAdmin } from "./routes/auth.js";
 import { contactRouter } from "./routes/contact.js";
 import type { Mailer } from "./services/mailer.js";
@@ -52,6 +54,13 @@ export function createApp({
     requireAuth(db, jwtSecret),
     requireRole("super_admin", "content_admin", "guru"),
     adminArticlesRouter({ db }),
+  );
+  app.use("/api/events", eventsRouter({ db }));
+  app.use(
+    "/api/admin/events",
+    requireAuth(db, jwtSecret),
+    requireRole("super_admin", "content_admin", "guru"),
+    adminEventsRouter({ db }),
   );
   app.use(
     "/api/admin/contact-messages",
