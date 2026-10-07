@@ -9,10 +9,12 @@ import { adminBooksRouter } from "./routes/admin-books.js";
 import { adminEventsRouter } from "./routes/admin-events.js";
 import { adminGalleryRouter, adminUploadsRouter } from "./routes/admin-media.js";
 import { adminMessagesRouter } from "./routes/admin-messages.js";
+import { adminVideosRouter } from "./routes/admin-videos.js";
 import { articlesRouter } from "./routes/articles.js";
 import { booksRouter } from "./routes/books.js";
 import { eventsRouter } from "./routes/events.js";
 import { galleryRouter } from "./routes/gallery.js";
+import { videosRouter } from "./routes/videos.js";
 import { authRouter, type BootstrapAdmin } from "./routes/auth.js";
 import { contactRouter } from "./routes/contact.js";
 import type { Mailer } from "./services/mailer.js";
@@ -33,6 +35,8 @@ export type AppDeps = {
   media?: Media;
   /** Why photo uploads are off, shown to admins */
   mediaProblem?: string;
+  /** Reaches YouTube for video titles; tests pass a stand-in */
+  youtubeFetch?: typeof fetch;
 };
 
 export function createApp({
@@ -45,6 +49,7 @@ export function createApp({
   bootstrapAdmin,
   media,
   mediaProblem,
+  youtubeFetch,
 }: AppDeps) {
   const app = express();
 
@@ -78,6 +83,8 @@ export function createApp({
   app.use("/api/admin/gallery", ...contentEditors, adminGalleryRouter({ db, media }));
   app.use("/api/books", booksRouter({ db }));
   app.use("/api/admin/books", ...contentEditors, adminBooksRouter({ db, media }));
+  app.use("/api/videos", videosRouter({ db }));
+  app.use("/api/admin/videos", ...contentEditors, adminVideosRouter({ db, fetchImpl: youtubeFetch }));
   app.use(
     "/api/admin/contact-messages",
     requireAuth(db, jwtSecret),

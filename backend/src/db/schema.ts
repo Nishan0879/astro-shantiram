@@ -177,3 +177,50 @@ export const bookTranslations = pgTable(
 );
 
 export type Book = typeof books.$inferSelect;
+
+// Pravachan and other YouTube videos. Only the video id is stored; YouTube hosts and serves the video.
+export const videoCategories = [
+  "gita",
+  "vedas",
+  "upanishads",
+  "puranas",
+  "dharma",
+  "spirituality",
+  "culture",
+  "festivals",
+  "astrology",
+  "puja",
+  "other",
+] as const;
+export type VideoCategory = (typeof videoCategories)[number];
+
+export const videoKinds = ["video", "short", "live"] as const;
+export type VideoKind = (typeof videoKinds)[number];
+
+export const videos = pgTable("videos", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  youtubeId: varchar("youtube_id", { length: 20 }).notNull().unique(),
+  kind: varchar("kind", { length: 8 }).$type<VideoKind>().notNull().default("video"),
+  status: varchar("status", { length: 16 }).$type<"draft" | "published">().notNull().default("draft"),
+  category: varchar("category", { length: 32 }).$type<VideoCategory>().notNull(),
+  // The language spoken in the video
+  language: varchar("language", { length: 8 }).$type<BookLanguage>().notNull(),
+  publishedOn: date("published_on"),
+  featured: boolean("featured").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Title and description per site language
+export const videoTranslations = pgTable(
+  "video_translations",
+  {
+    videoId: uuid("video_id")
+      .notNull()
+      .references(() => videos.id, { onDelete: "cascade" }),
+    locale: varchar("locale", { length: 8 }).$type<ContentLocale>().notNull(),
+    title: varchar("title", { length: 200 }).notNull(),
+    description: text("description"),
+  },
+  (t) => [primaryKey({ columns: [t.videoId, t.locale] })],
+);
