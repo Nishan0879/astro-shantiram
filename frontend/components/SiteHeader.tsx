@@ -1,0 +1,39 @@
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import LanguageSwitcher from "./LanguageSwitcher";
+
+const navItems = [
+  { href: "/", key: "home" },
+  { href: "/about", key: "about" },
+  { href: "/services", key: "services" },
+  { href: "/contact", key: "contact" },
+] as const;
+
+export default function SiteHeader() {
+  const t = useTranslations("Nav");
+  const site = useTranslations("Site");
+
+  return (
+    <header className="border-b border-gold/30 bg-warm-white/95">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4">
+        <Link href="/" className="font-serif text-xl font-semibold tracking-wide text-maroon">
+          {site("name")}
+        </Link>
+        <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+          {navItems.map((item) => (
+            <Link key={item.key} href={item.href} className="hover:text-saffron">
+              {t(item.key)}
+            </Link>
+          ))}
+          <LanguageSwitcher />
+          <Link
+            href="/contact"
+            className="rounded-full bg-saffron px-4 py-2 font-medium text-white hover:bg-saffron-dark"
+          >
+            {t("book")}
+          </Link>
+        </nav>
+      </div>
+    </header>
+  );
+}

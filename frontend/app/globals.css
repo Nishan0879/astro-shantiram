@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+/* Modern Himalayan / Sanatan palette from the project spec */
+@theme {
+  --color-saffron: #d9661f;
+  --color-saffron-dark: #b34f12;
+  --color-maroon: #6e1423;
+  --color-maroon-dark: #4a0d18;
+  --color-gold: #b8913a;
+  --color-cream: #f7efe0;
+  --color-warm-white: #fdfaf4;
+  --color-charcoal: #2b2623;
+
+  --font-serif: var(--font-playfair), var(--font-devanagari-serif), Georgia, serif;
+  --font-sans: var(--font-devanagari-sans), system-ui, sans-serif;
+}
+
+body {
+  background: var(--color-warm-white);
+  color: var(--color-charcoal);
+  font-family: var(--font-sans);
+}
+
+/* Subtle mandala-like radial pattern for hero backgrounds */
+.bg-mandala {
+  background-image:
+    radial-gradient(circle at 50% 120%, rgb(184 145 58 / 0.25) 0, transparent 55%),
+    repeating-radial-gradient(circle at 50% 120%, rgb(184 145 58 / 0.08) 0 2px, transparent 2px 28px);
+}
