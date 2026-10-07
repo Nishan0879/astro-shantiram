@@ -25,6 +25,7 @@ export default function ContactForm() {
   return (
     <form action={action} className="space-y-4">
       {state.status === "error" && <p className="text-red-700">{t("error")}</p>}
+      {state.status === "failed" && <p className="text-red-700">{t("failed")}</p>}
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
           {t("name")}
