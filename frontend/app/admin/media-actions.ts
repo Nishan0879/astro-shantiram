@@ -11,7 +11,10 @@ export type UploadSignature = { uploadUrl: string; apiKey: string; timestamp: nu
 /** Permission for the browser to upload one photo straight to Cloudinary. */
 export async function signUpload(folder: "gallery" | "articles"): Promise<UploadSignature | { error: string }> {
   const res = await adminFetch("/api/admin/uploads/sign", { method: "POST", body: JSON.stringify({ folder }) });
-  if (res.status === 503) return { error: "Photo uploads are not set up yet (CLOUDINARY_URL is missing on the API)." };
+  if (res.status === 503) {
+    const body = (await res.json().catch(() => ({}))) as { detail?: string };
+    return { error: `Photo uploads are not set up yet. ${body.detail ?? "Check CLOUDINARY_URL on the API (backend) project."}` };
+  }
   if (!res.ok) return { error: "Could not start the upload. Please try again." };
   return res.json();
 }
@@ -45,8 +48,12 @@ export async function updateGalleryItem(id: string, category: GalleryCategory, c
   return { ok: true };
 }
 
-export async function deleteGalleryItem(id: string) {
+export async function deleteGalleryItem(id: string): Promise<{ error: string } | void> {
   const res = await adminFetch(`/api/admin/gallery/${encodeURIComponent(id)}`, { method: "DELETE" });
-  if (!res.ok && res.status !== 404) throw new Error(`Deleting gallery item failed: ${res.status}`);
+  if (res.status === 403) return { error: "Your account is not allowed to delete this gallery item." };
+  if (!res.ok && res.status !== 404) {
+    console.error("Deleting gallery item failed", res.status, await res.text());
+    return { error: "Deleting failed. Please try again." };
+  }
   redirect("/admin/gallery");
 }

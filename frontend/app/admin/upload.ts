@@ -21,7 +21,12 @@ export async function uploadPhoto(file: File, folder: "gallery" | "articles"): P
   form.append("signature", sig.signature);
 
   const res = await fetch(sig.uploadUrl, { method: "POST", body: form }).catch(() => null);
-  if (!res?.ok) throw new Error(`Uploading ${file.name} failed. Please try again.`);
+  if (!res) throw new Error(`Uploading ${file.name} failed. Check the internet connection and try again.`);
+  if (!res.ok) {
+    // Cloudinary explains itself, e.g. "Invalid Signature" when CLOUDINARY_URL has the wrong secret
+    const reason = ((await res.json().catch(() => null)) as { error?: { message?: string } } | null)?.error?.message;
+    throw new Error(`Uploading ${file.name} failed${reason ? `: Cloudinary says "${reason}"` : ". Please try again."}`);
+  }
   const body = (await res.json()) as { secure_url: string; public_id: string; width: number; height: number };
   return { url: body.secure_url, publicId: body.public_id, width: body.width, height: body.height };
 }

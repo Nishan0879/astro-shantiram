@@ -7,7 +7,7 @@ import { createApp } from "../src/create-app.js";
 import type { Database } from "../src/db/client.js";
 import * as schema from "../src/db/schema.js";
 import { signToken } from "../src/services/auth.js";
-import { cloudinaryMedia, type Media, parseCloudinaryUrl, signParams } from "../src/services/media.js";
+import { cloudinaryMedia, describeCloudinaryProblem, type Media, parseCloudinaryUrl, signParams } from "../src/services/media.js";
 
 const jwtSecret = "test-secret-that-is-at-least-32-chars";
 let db: Database;
@@ -62,6 +62,15 @@ describe("cloudinary", () => {
       cloudName: "my-cloud",
     });
     expect(parseCloudinaryUrl("my-cloud")).toBeNull();
+    expect(describeCloudinaryProblem("cloudinary://123456:abcSECRET@my-cloud")).toBeNull();
+    expect(describeCloudinaryProblem(undefined)).toMatch(/not set/);
+    expect(describeCloudinaryProblem("cloudinary://<your_api_key>:<your_api_secret>@demo")).toMatch(/placeholders/);
+    expect(describeCloudinaryProblem("123456:abcSECRET@my-cloud")).toMatch(/must start with cloudinary:\/\//);
+    // The secret never appears in the message
+    expect(describeCloudinaryProblem("cloudinary://123456:abcSECRET")).not.toContain("abcSECRET");
+    // The whole line copied from the dashboard still works
+    expect(parseCloudinaryUrl(' CLOUDINARY_URL=cloudinary://123456:abcSECRET@my-cloud\n')).toMatchObject({ cloudName: "my-cloud" });
+    expect(parseCloudinaryUrl('"cloudinary://123456:abcSECRET@my-cloud"')).toMatchObject({ apiKey: "123456" });
   });
 
   it("signs like Cloudinary's documented example", () => {

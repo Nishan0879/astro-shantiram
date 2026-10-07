@@ -29,6 +29,8 @@ export type AppDeps = {
   jwtSecret?: string;
   bootstrapAdmin?: BootstrapAdmin;
   media?: Media;
+  /** Why photo uploads are off, shown to admins */
+  mediaProblem?: string;
 };
 
 export function createApp({
@@ -40,6 +42,7 @@ export function createApp({
   jwtSecret,
   bootstrapAdmin,
   media,
+  mediaProblem,
 }: AppDeps) {
   const app = express();
 
@@ -69,7 +72,7 @@ export function createApp({
   );
   app.use("/api/gallery", galleryRouter({ db }));
   const contentEditors = [requireAuth(db, jwtSecret), requireRole("super_admin", "content_admin", "guru")];
-  app.use("/api/admin/uploads", ...contentEditors, adminUploadsRouter({ media }));
+  app.use("/api/admin/uploads", ...contentEditors, adminUploadsRouter({ media, mediaProblem }));
   app.use("/api/admin/gallery", ...contentEditors, adminGalleryRouter({ db, media }));
   app.use(
     "/api/admin/contact-messages",

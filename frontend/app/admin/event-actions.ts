@@ -44,8 +44,12 @@ export async function saveEvent(id: string | null, values: EventFormValues): Pro
   return { ok: true };
 }
 
-export async function deleteEvent(id: string) {
+export async function deleteEvent(id: string): Promise<{ error: string } | void> {
   const res = await adminFetch(`/api/admin/events/${encodeURIComponent(id)}`, { method: "DELETE" });
-  if (!res.ok && res.status !== 404) throw new Error(`Deleting event failed: ${res.status}`);
+  if (res.status === 403) return { error: "Your account is not allowed to delete this event." };
+  if (!res.ok && res.status !== 404) {
+    console.error("Deleting event failed", res.status, await res.text());
+    return { error: "Deleting failed. Please try again." };
+  }
   redirect("/admin/events");
 }

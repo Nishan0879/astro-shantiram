@@ -3,11 +3,12 @@ import { createApp } from "./create-app.js";
 import { loadEnv } from "./config/env.js";
 import { createDb } from "./db/client.js";
 import { createMailer } from "./services/mailer.js";
-import { cloudinaryMedia, parseCloudinaryUrl } from "./services/media.js";
+import { cloudinaryMedia, describeCloudinaryProblem, parseCloudinaryUrl } from "./services/media.js";
 
 const env = loadEnv();
 const cloudinary = env.CLOUDINARY_URL ? parseCloudinaryUrl(env.CLOUDINARY_URL) : null;
-if (env.CLOUDINARY_URL && !cloudinary) console.error("CLOUDINARY_URL is not in the cloudinary://key:secret@cloud format");
+const mediaProblem = describeCloudinaryProblem(env.CLOUDINARY_URL) ?? undefined;
+if (env.CLOUDINARY_URL && mediaProblem) console.error(mediaProblem);
 
 // Vercel deploys the first of app/index/server(.ts) that imports "express",
 // so this file is the entry and the app factory lives in create-app.ts.
@@ -23,6 +24,7 @@ const app: Express = createApp({
       ? { email: env.ADMIN_EMAIL, password: env.ADMIN_PASSWORD, name: env.ADMIN_NAME }
       : undefined,
   media: cloudinary ? cloudinaryMedia(cloudinary, env.CLOUDINARY_API_BASE) : undefined,
+  mediaProblem,
 });
 
 // Vercel imports the default export as a function; elsewhere we listen ourselves

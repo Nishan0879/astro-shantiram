@@ -29,12 +29,12 @@ const fieldErrors = (error: z.ZodError) => {
 };
 
 /** Signs photo uploads; mount behind requireAuth. */
-export function adminUploadsRouter({ media }: { media?: Media }) {
+export function adminUploadsRouter({ media, mediaProblem }: { media?: Media; mediaProblem?: string }) {
   const router = Router();
 
   router.post("/sign", (req, res) => {
     if (!media) {
-      res.status(503).json({ error: "media_not_configured" });
+      res.status(503).json({ error: "media_not_configured", detail: mediaProblem });
       return;
     }
     const folder = z.enum(folders).safeParse(req.body?.folder);
