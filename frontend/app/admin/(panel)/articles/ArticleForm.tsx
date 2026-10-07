@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { articleCategories, contentLocales, type ContentLocale, slugify } from "@/lib/articles";
 import { type ArticleFormResult, type ArticleFormValues, saveArticle } from "../../article-actions";
 import { inputClass, primaryButtonClass, secondaryButtonClass } from "../../styles";
+import CoverPhoto from "./CoverPhoto";
 
 const languageNames: Record<ContentLocale, string> = { en: "English", ne: "नेपाली", sa: "संस्कृतम्" };
 const categoryNames: Record<string, string> = {
@@ -21,6 +22,7 @@ export const emptyArticle: ArticleFormValues = {
   slug: "",
   category: "astrology",
   status: "draft",
+  coverUrl: "",
   translations: {
     en: { title: "", summary: "", body: "" },
     ne: { title: "", summary: "", body: "" },
@@ -131,6 +133,12 @@ export default function ArticleForm({ id, initial }: { id: string | null; initia
           </span>
         </label>
       </div>
+
+      <CoverPhoto
+        url={values.coverUrl}
+        error={err("coverUrl")}
+        onChange={(coverUrl) => setValues((v) => ({ ...v, coverUrl }))}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block text-sm">

@@ -1,4 +1,4 @@
-import { date, pgTable, primaryKey, text, time, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { date, integer, jsonb, pgTable, primaryKey, text, time, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 
 export const contactMessages = pgTable("contact_messages", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -62,6 +62,8 @@ export const articles = pgTable("articles", {
   // Set the first time the article is published
   publishedAt: timestamp("published_at", { withTimezone: true }),
   authorId: uuid("author_id").references(() => users.id, { onDelete: "set null" }),
+  // Optional cover photo (a Cloudinary URL)
+  coverUrl: varchar("cover_url", { length: 500 }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -114,3 +116,23 @@ export const eventTranslations = pgTable(
 );
 
 export type Event = typeof events.$inferSelect;
+
+export const galleryCategories = ["guruji", "temple", "puja", "events", "community", "spiritual", "travel"] as const;
+export type GalleryCategory = (typeof galleryCategories)[number];
+
+export type Captions = Partial<Record<ContentLocale, string>>;
+
+export const galleryItems = pgTable("gallery_items", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  kind: varchar("kind", { length: 8 }).$type<"photo" | "video">().notNull(),
+  category: varchar("category", { length: 32 }).$type<GalleryCategory>().notNull(),
+  // Photos: the Cloudinary copy. Videos: a YouTube link.
+  url: varchar("url", { length: 500 }).notNull(),
+  publicId: varchar("public_id", { length: 300 }),
+  width: integer("width"),
+  height: integer("height"),
+  captions: jsonb("captions").$type<Captions>().notNull().default({}),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type GalleryItem = typeof galleryItems.$inferSelect;

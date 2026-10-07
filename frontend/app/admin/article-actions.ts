@@ -9,6 +9,8 @@ export type ArticleFormValues = {
   slug: string;
   category: ArticleCategory;
   status: "draft" | "published";
+  /** Cloudinary address of the cover photo, or "" for none */
+  coverUrl: string;
   translations: Record<ContentLocale, { title: string; summary: string; body: string }>;
 };
 

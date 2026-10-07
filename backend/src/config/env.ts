@@ -16,6 +16,11 @@ const envSchema = z.object({
   ADMIN_PASSWORD: z.string().min(10).optional(),
   ADMIN_NAME: z.string().optional(),
 
+  // Photo storage: "cloudinary://<api_key>:<api_secret>@<cloud_name>" from the Cloudinary dashboard
+  CLOUDINARY_URL: z.string().optional(),
+  // Only for local testing against a stand-in for Cloudinary's API
+  CLOUDINARY_API_BASE: z.url().optional(),
+
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.coerce.number().default(587),
   SMTP_USER: z.string().optional(),

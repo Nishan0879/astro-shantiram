@@ -4,6 +4,7 @@ import { getFormatter, getTranslations, setRequestLocale } from "next-intl/serve
 import { Suspense, use } from "react";
 import { Link } from "@/i18n/navigation";
 import { articleCategories, type ArticleList } from "@/lib/articles";
+import { cloudinaryImage } from "@/lib/media";
 import { publicJson } from "@/lib/public-api";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/articles">): Promise<Metadata> {
@@ -73,7 +74,19 @@ async function ArticleListing({
       ) : (
         <ul className="mt-10 space-y-6">
           {articles.map((a) => (
-            <li key={a.slug} className="rounded-xl border border-gold/30 bg-cream p-6">
+            <li key={a.slug} className="overflow-hidden rounded-xl border border-gold/30 bg-cream">
+              {a.coverUrl && (
+                <Link href={`/articles/${a.slug}`} tabIndex={-1} aria-hidden>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- Cloudinary resizes it */}
+                  <img
+                    src={cloudinaryImage(a.coverUrl, "c_fill,g_auto,w_900,h_400")}
+                    alt=""
+                    loading="lazy"
+                    className="aspect-[9/4] w-full object-cover"
+                  />
+                </Link>
+              )}
+              <div className="p-6">
               <p className="text-sm text-gold">
                 {t(`categories.${a.category}`)} · {format.dateTime(new Date(a.publishedAt), { dateStyle: "long" })}
               </p>
@@ -86,6 +99,7 @@ async function ArticleListing({
               <Link href={`/articles/${a.slug}`} className="mt-3 inline-block text-saffron hover:underline">
                 {t("readMore")} →
               </Link>
+              </div>
             </li>
           ))}
         </ul>
