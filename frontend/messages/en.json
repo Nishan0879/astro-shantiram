@@ -14,6 +14,7 @@
     "gallery": "Gallery",
     "books": "Books",
     "pravachan": "Pravachan",
+    "horoscope": "Horoscope",
     "contact": "Contact",
     "book": "Book Consultation",
     "language": "Language"
@@ -38,7 +39,9 @@
     "latestText": "Talks by Guruji on the Gita, dharma and daily spiritual life.",
     "allVideos": "All videos",
     "facebookTitle": "Facebook updates",
-    "facebookLink": "Open our Facebook page"
+    "facebookLink": "Open our Facebook page",
+    "horoscopeTitle": "Today's horoscope",
+    "horoscopeText": "Choose your sign to read Guruji's guidance."
   },
   "About": {
     "title": "About Guruji",
@@ -251,6 +254,63 @@
       "sa": "Sanskrit",
       "hi": "Hindi",
       "other": "Other"
+    }
+  },
+  "Horoscope": {
+    "title": "Horoscope",
+    "intro": "Guruji's readings for each of the twelve rashis, written by hand for the day, week, month and year.",
+    "howToChoose": "Use your Moon sign (rashi) from your birth chart if you know it. If not, your Sun sign in Vedic astrology, shown under each sign, is a good start.",
+    "chooseSign": "Choose your sign",
+    "periods": {
+      "daily": "Today",
+      "weekly": "This week",
+      "monthly": "This month",
+      "yearly": "This year"
+    },
+    "kinds": {
+      "daily": "Daily horoscope",
+      "weekly": "Weekly horoscope",
+      "monthly": "Monthly horoscope",
+      "yearly": "Yearly horoscope",
+      "festival": "Festival horoscope",
+      "special": "Astrology update"
+    },
+    "newest": "The newest is from {date}. The next one will appear here once Guruji writes it.",
+    "notWritten": "Guruji hasn't written this horoscope yet. Please check back soon.",
+    "signNotWritten": "There is no reading for {sign} in this one yet.",
+    "sections": {
+      "overview": "Overview",
+      "career": "Career",
+      "finance": "Money",
+      "relationships": "Relationships",
+      "health": "Health and well-being",
+      "spiritual": "Spiritual guidance",
+      "lucky": "Lucky"
+    },
+    "specials": "Festival horoscopes and astrology updates",
+    "forAllSigns": "For all signs",
+    "back": "All signs",
+    "backToHoroscope": "Horoscope",
+    "otherSigns": "Other signs",
+    "otherLanguage": "This reading is not available in your language yet, so it is shown in {language}.",
+    "languages": {
+      "en": "English",
+      "ne": "Nepali",
+      "sa": "Sanskrit"
+    },
+    "signs": {
+      "mesha": "Mesha",
+      "vrishabha": "Vrishabha",
+      "mithuna": "Mithuna",
+      "karka": "Karka",
+      "simha": "Simha",
+      "kanya": "Kanya",
+      "tula": "Tula",
+      "vrishchika": "Vrishchika",
+      "dhanu": "Dhanu",
+      "makara": "Makara",
+      "kumbha": "Kumbha",
+      "meena": "Meena"
     }
   },
   "Contact": {

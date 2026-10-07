@@ -8,12 +8,14 @@ import { adminArticlesRouter } from "./routes/admin-articles.js";
 import { adminBooksRouter } from "./routes/admin-books.js";
 import { adminEventsRouter } from "./routes/admin-events.js";
 import { adminGalleryRouter, adminUploadsRouter } from "./routes/admin-media.js";
+import { adminHoroscopesRouter } from "./routes/admin-horoscopes.js";
 import { adminMessagesRouter } from "./routes/admin-messages.js";
 import { adminVideosRouter } from "./routes/admin-videos.js";
 import { articlesRouter } from "./routes/articles.js";
 import { booksRouter } from "./routes/books.js";
 import { eventsRouter } from "./routes/events.js";
 import { galleryRouter } from "./routes/gallery.js";
+import { horoscopesRouter } from "./routes/horoscopes.js";
 import { videosRouter } from "./routes/videos.js";
 import { authRouter, type BootstrapAdmin } from "./routes/auth.js";
 import { contactRouter } from "./routes/contact.js";
@@ -37,6 +39,8 @@ export type AppDeps = {
   mediaProblem?: string;
   /** Reaches YouTube for video titles; tests pass a stand-in */
   youtubeFetch?: typeof fetch;
+  /** Today's date in US Central time; tests pin it */
+  today?: () => string;
 };
 
 export function createApp({
@@ -50,6 +54,7 @@ export function createApp({
   media,
   mediaProblem,
   youtubeFetch,
+  today,
 }: AppDeps) {
   const app = express();
 
@@ -85,6 +90,8 @@ export function createApp({
   app.use("/api/admin/books", ...contentEditors, adminBooksRouter({ db, media }));
   app.use("/api/videos", videosRouter({ db }));
   app.use("/api/admin/videos", ...contentEditors, adminVideosRouter({ db, fetchImpl: youtubeFetch }));
+  app.use("/api/horoscopes", horoscopesRouter({ db, today }));
+  app.use("/api/admin/horoscopes", ...contentEditors, adminHoroscopesRouter({ db }));
   app.use(
     "/api/admin/contact-messages",
     requireAuth(db, jwtSecret),
