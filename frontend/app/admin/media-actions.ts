@@ -11,7 +11,10 @@ export type UploadSignature = { uploadUrl: string; apiKey: string; timestamp: nu
 /** Permission for the browser to upload one photo straight to Cloudinary. */
 export async function signUpload(folder: "gallery" | "articles"): Promise<UploadSignature | { error: string }> {
   const res = await adminFetch("/api/admin/uploads/sign", { method: "POST", body: JSON.stringify({ folder }) });
-  if (res.status === 503) return { error: "Photo uploads are not set up yet (CLOUDINARY_URL is missing on the API)." };
+  if (res.status === 503) {
+    const body = (await res.json().catch(() => ({}))) as { detail?: string };
+    return { error: `Photo uploads are not set up yet. ${body.detail ?? "Check CLOUDINARY_URL on the API (backend) project."}` };
+  }
   if (!res.ok) return { error: "Could not start the upload. Please try again." };
   return res.json();
 }

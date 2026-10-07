@@ -23,8 +23,24 @@ export type CloudinaryConfig = { cloudName: string; apiKey: string; apiSecret: s
 export function parseCloudinaryUrl(value: string): CloudinaryConfig | null {
   // People often paste the whole "CLOUDINARY_URL=cloudinary://..." line from the dashboard
   const cleaned = value.trim().replace(/^CLOUDINARY_URL=/, "").replace(/^["']|["']$/g, "");
+  // The dashboard's template version has <placeholders> instead of real keys
+  if (/[<>]/.test(cleaned)) return null;
   const match = cleaned.match(/^cloudinary:\/\/([^:]+):([^@]+)@([^/?\s]+)/);
   return match ? { apiKey: match[1], apiSecret: match[2], cloudName: match[3] } : null;
+}
+
+/**
+ * Says in plain words why CLOUDINARY_URL can't be used, without repeating the secret,
+ * so the admin can fix the Vercel setting. Returns null when it is fine.
+ */
+export function describeCloudinaryProblem(value: string | undefined): string | null {
+  if (!value?.trim()) return "CLOUDINARY_URL is not set on the API (backend) project, or it was added without redeploying.";
+  if (parseCloudinaryUrl(value)) return null;
+  const v = value.trim();
+  if (v.includes("<") || v.includes(">")) return "CLOUDINARY_URL still has <placeholders> in it. Copy the real value from the Cloudinary dashboard.";
+  if (!/cloudinary:\/\//.test(v)) return "CLOUDINARY_URL must start with cloudinary:// (copy the \"API environment variable\" from the Cloudinary dashboard).";
+  if (!v.includes("@")) return "CLOUDINARY_URL is missing the @cloud-name part at the end.";
+  return "CLOUDINARY_URL should look like cloudinary://API_KEY:API_SECRET@CLOUD_NAME.";
 }
 
 /** Cloudinary's request signature: sorted params joined with &, plus the secret, SHA-1. */
