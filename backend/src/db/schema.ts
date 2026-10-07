@@ -14,5 +14,26 @@ export const contactMessages = pgTable("contact_messages", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const contactStatuses = ["new", "read", "replied", "archived"] as const;
+export type ContactStatus = (typeof contactStatuses)[number];
+
 export type ContactMessage = typeof contactMessages.$inferSelect;
 export type NewContactMessage = typeof contactMessages.$inferInsert;
+
+export const userRoles = ["super_admin", "content_admin", "appointment_manager", "guru"] as const;
+export type UserRole = (typeof userRoles)[number];
+
+// People who can sign in to the admin dashboard
+export const users = pgTable("users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: varchar("email", { length: 254 }).notNull().unique(),
+  name: varchar("name", { length: 120 }).notNull(),
+  passwordHash: text("password_hash").notNull(),
+  role: varchar("role", { length: 32 }).$type<UserRole>().notNull().default("super_admin"),
+  // Sign-in tokens issued before this moment stop working (set on password change)
+  tokensValidAfter: timestamp("tokens_valid_after", { withTimezone: true }).notNull().defaultNow(),
+  lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type User = typeof users.$inferSelect;

@@ -14,6 +14,11 @@ const app: Express = createApp({
   corsOrigins: env.CORS_ORIGIN.split(",").map((o) => o.trim()),
   notifyEmail: env.CONTACT_NOTIFY_EMAIL,
   internalApiKey: env.INTERNAL_API_KEY,
+  jwtSecret: env.JWT_SECRET,
+  bootstrapAdmin:
+    env.ADMIN_EMAIL && env.ADMIN_PASSWORD
+      ? { email: env.ADMIN_EMAIL, password: env.ADMIN_PASSWORD, name: env.ADMIN_NAME }
+      : undefined,
 });
 
 // Vercel imports the default export as a function; elsewhere we listen ourselves

@@ -2,7 +2,10 @@ import cors from "cors";
 import express from "express";
 import helmetImport from "helmet";
 import type { Database } from "./db/client.js";
+import { requireAuth, requireRole } from "./middleware/auth.js";
 import { errorHandler, notFound } from "./middleware/errors.js";
+import { adminMessagesRouter } from "./routes/admin-messages.js";
+import { authRouter, type BootstrapAdmin } from "./routes/auth.js";
 import { contactRouter } from "./routes/contact.js";
 import type { Mailer } from "./services/mailer.js";
 
@@ -16,9 +19,19 @@ export type AppDeps = {
   corsOrigins: string[];
   notifyEmail?: string;
   internalApiKey?: string;
+  jwtSecret?: string;
+  bootstrapAdmin?: BootstrapAdmin;
 };
 
-export function createApp({ db, mailer, corsOrigins, notifyEmail, internalApiKey }: AppDeps) {
+export function createApp({
+  db,
+  mailer,
+  corsOrigins,
+  notifyEmail,
+  internalApiKey,
+  jwtSecret,
+  bootstrapAdmin,
+}: AppDeps) {
   const app = express();
 
   app.set("trust proxy", 1);
@@ -30,6 +43,13 @@ export function createApp({ db, mailer, corsOrigins, notifyEmail, internalApiKey
     res.json({ status: "ok" });
   });
   app.use("/api/contact", contactRouter({ db, mailer, notifyEmail, internalApiKey }));
+  app.use("/api/auth", authRouter({ db, jwtSecret, internalApiKey, bootstrapAdmin }));
+  app.use(
+    "/api/admin/contact-messages",
+    requireAuth(db, jwtSecret),
+    requireRole("super_admin"),
+    adminMessagesRouter({ db }),
+  );
 
   app.use(notFound);
   app.use(errorHandler);
