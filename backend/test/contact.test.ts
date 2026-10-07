@@ -3,7 +3,7 @@ import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import request from "supertest";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { createApp } from "../src/app.js";
+import { createApp } from "../src/create-app.js";
 import type { Database } from "../src/db/client.js";
 import * as schema from "../src/db/schema.js";
 import type { Mail, Mailer } from "../src/services/mailer.js";

@@ -1,11 +1,14 @@
-import { createApp } from "./app.js";
+import type { Express } from "express";
+import { createApp } from "./create-app.js";
 import { loadEnv } from "./config/env.js";
 import { createDb } from "./db/client.js";
 import { createMailer } from "./services/mailer.js";
 
 const env = loadEnv();
 
-const app = createApp({
+// Vercel deploys the first of app/index/server(.ts) that imports "express",
+// so this file is the entry and the app factory lives in create-app.ts.
+const app: Express = createApp({
   db: createDb(env.DATABASE_URL),
   mailer: createMailer(env),
   corsOrigins: env.CORS_ORIGIN.split(",").map((o) => o.trim()),
