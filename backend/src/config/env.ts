@@ -9,6 +9,13 @@ const envSchema = z.object({
   // Shared secret the website sends so the API trusts its forwarded visitor IP
   INTERNAL_API_KEY: z.string().min(16).optional(),
 
+  // Signs admin sign-in tokens; the admin dashboard stays off until it is set
+  JWT_SECRET: z.string().min(32).optional(),
+  // The first admin account, created on its first sign-in while no admins exist
+  ADMIN_EMAIL: z.email().optional(),
+  ADMIN_PASSWORD: z.string().min(10).optional(),
+  ADMIN_NAME: z.string().optional(),
+
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.coerce.number().default(587),
   SMTP_USER: z.string().optional(),

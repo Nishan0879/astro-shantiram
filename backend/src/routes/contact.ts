@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { ipKeyGenerator, rateLimit } from "express-rate-limit";
 import { z } from "zod";
 import type { Database } from "../db/client.js";
 import { contactMessages } from "../db/schema.js";
+import { visitorRateLimit } from "../middleware/rate-limit.js";
 import type { Mailer } from "../services/mailer.js";
 
 export const inquiryCategories = [
@@ -30,21 +30,7 @@ type Deps = { db: Database; mailer: Mailer; notifyEmail?: string; internalApiKey
 export function contactRouter({ db, mailer, notifyEmail, internalApiKey }: Deps) {
   const router = Router();
 
-  // The website submits from its server, so every request shares its IP. When it
-  // proves itself with the internal key, limit by the visitor IP it forwards.
-  const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    limit: 10,
-    standardHeaders: "draft-8",
-    legacyHeaders: false,
-    keyGenerator: (req) => {
-      const visitorIp = req.get("x-visitor-ip");
-      if (internalApiKey && visitorIp && req.get("x-internal-key") === internalApiKey) {
-        return ipKeyGenerator(visitorIp);
-      }
-      return ipKeyGenerator(req.ip ?? "unknown");
-    },
-  });
+  const limiter = visitorRateLimit({ internalApiKey, limit: 10 });
 
   router.post(
     "/",
