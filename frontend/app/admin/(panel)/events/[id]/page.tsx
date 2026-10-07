@@ -65,11 +65,17 @@ async function Editor({ params, searchParams }: Pick<PageProps<"/admin/events/[i
     <>
       <div className="mb-4 mt-2 flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-serif text-2xl text-maroon">Edit event</h1>
-        {event.status === "published" && (
-          <a href={`/en/events/${event.slug}`} target="_blank" className="text-sm text-saffron-dark underline">
-            View on site ↗
-          </a>
-        )}
+        <div className="flex items-center gap-4">
+          {event.status === "published" && (
+            <a href={`/en/events/${event.slug}`} target="_blank" className="text-sm text-saffron-dark underline">
+              View on site ↗
+            </a>
+          )}
+          <DeleteButton
+            action={deleteEvent.bind(null, event.id)}
+            confirmText="Delete this event? This cannot be undone."
+          />
+        </div>
       </div>
       {created && (
         <p className="mb-4 rounded bg-green-50 p-3 text-sm text-green-900">
@@ -78,9 +84,6 @@ async function Editor({ params, searchParams }: Pick<PageProps<"/admin/events/[i
       )}
       <div className="rounded-xl border border-gold/30 bg-warm-white p-5">
         <EventForm id={event.id} initial={initial} />
-      </div>
-      <div className="mt-6">
-        <DeleteButton action={deleteEvent.bind(null, event.id)} confirmText="Delete this event? This cannot be undone." />
       </div>
     </>
   );

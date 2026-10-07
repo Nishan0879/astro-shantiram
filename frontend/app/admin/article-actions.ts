@@ -41,8 +41,12 @@ export async function saveArticle(id: string | null, values: ArticleFormValues):
   return { ok: true };
 }
 
-export async function deleteArticle(id: string) {
+export async function deleteArticle(id: string): Promise<{ error: string } | void> {
   const res = await adminFetch(`/api/admin/articles/${encodeURIComponent(id)}`, { method: "DELETE" });
-  if (!res.ok && res.status !== 404) throw new Error(`Deleting article failed: ${res.status}`);
+  if (res.status === 403) return { error: "Your account is not allowed to delete this article." };
+  if (!res.ok && res.status !== 404) {
+    console.error("Deleting article failed", res.status, await res.text());
+    return { error: "Deleting failed. Please try again." };
+  }
   redirect("/admin/articles");
 }

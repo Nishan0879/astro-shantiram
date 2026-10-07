@@ -66,11 +66,15 @@ export async function setMessageStatus(id: string, status: MessageStatus) {
   refresh();
 }
 
-export async function deleteMessage(id: string) {
+export async function deleteMessage(id: string): Promise<{ error: string } | void> {
   const res = await adminFetch(`/api/admin/contact-messages/${encodeURIComponent(id)}`, {
     method: "DELETE",
   });
-  if (!res.ok && res.status !== 404) throw new Error(`Deleting message failed: ${res.status}`);
+  if (res.status === 403) return { error: "Your account is not allowed to delete this message." };
+  if (!res.ok && res.status !== 404) {
+    console.error("Deleting message failed", res.status, await res.text());
+    return { error: "Deleting failed. Please try again." };
+  }
   redirect("/admin/messages");
 }
 

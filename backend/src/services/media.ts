@@ -21,7 +21,9 @@ export type CloudinaryConfig = { cloudName: string; apiKey: string; apiSecret: s
 
 /** Reads "cloudinary://<api_key>:<api_secret>@<cloud_name>", as shown on the Cloudinary dashboard. */
 export function parseCloudinaryUrl(value: string): CloudinaryConfig | null {
-  const match = value.trim().match(/^cloudinary:\/\/([^:]+):([^@]+)@([^/?\s]+)/);
+  // People often paste the whole "CLOUDINARY_URL=cloudinary://..." line from the dashboard
+  const cleaned = value.trim().replace(/^CLOUDINARY_URL=/, "").replace(/^["']|["']$/g, "");
+  const match = cleaned.match(/^cloudinary:\/\/([^:]+):([^@]+)@([^/?\s]+)/);
   return match ? { apiKey: match[1], apiSecret: match[2], cloudName: match[3] } : null;
 }
 

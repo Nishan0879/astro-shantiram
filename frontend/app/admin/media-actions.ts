@@ -45,8 +45,12 @@ export async function updateGalleryItem(id: string, category: GalleryCategory, c
   return { ok: true };
 }
 
-export async function deleteGalleryItem(id: string) {
+export async function deleteGalleryItem(id: string): Promise<{ error: string } | void> {
   const res = await adminFetch(`/api/admin/gallery/${encodeURIComponent(id)}`, { method: "DELETE" });
-  if (!res.ok && res.status !== 404) throw new Error(`Deleting gallery item failed: ${res.status}`);
+  if (res.status === 403) return { error: "Your account is not allowed to delete this gallery item." };
+  if (!res.ok && res.status !== 404) {
+    console.error("Deleting gallery item failed", res.status, await res.text());
+    return { error: "Deleting failed. Please try again." };
+  }
   redirect("/admin/gallery");
 }

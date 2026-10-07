@@ -55,11 +55,17 @@ async function Editor({ params, searchParams }: Pick<PageProps<"/admin/articles/
     <>
       <div className="mb-4 mt-2 flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-serif text-2xl text-maroon">Edit article</h1>
-        {article.status === "published" && (
-          <a href={`/en/articles/${article.slug}`} target="_blank" className="text-sm text-saffron-dark underline">
-            View on site ↗
-          </a>
-        )}
+        <div className="flex items-center gap-4">
+          {article.status === "published" && (
+            <a href={`/en/articles/${article.slug}`} target="_blank" className="text-sm text-saffron-dark underline">
+              View on site ↗
+            </a>
+          )}
+          <DeleteButton
+            action={deleteArticle.bind(null, article.id)}
+            confirmText="Delete this article in every language? This cannot be undone."
+          />
+        </div>
       </div>
       {created && (
         <p className="mb-4 rounded bg-green-50 p-3 text-sm text-green-900">
@@ -68,12 +74,6 @@ async function Editor({ params, searchParams }: Pick<PageProps<"/admin/articles/
       )}
       <div className="rounded-xl border border-gold/30 bg-warm-white p-5">
         <ArticleForm id={article.id} initial={initial} />
-      </div>
-      <div className="mt-6">
-        <DeleteButton
-          action={deleteArticle.bind(null, article.id)}
-          confirmText="Delete this article in every language? This cannot be undone."
-        />
       </div>
     </>
   );

@@ -62,6 +62,9 @@ describe("cloudinary", () => {
       cloudName: "my-cloud",
     });
     expect(parseCloudinaryUrl("my-cloud")).toBeNull();
+    // The whole line copied from the dashboard still works
+    expect(parseCloudinaryUrl(' CLOUDINARY_URL=cloudinary://123456:abcSECRET@my-cloud\n')).toMatchObject({ cloudName: "my-cloud" });
+    expect(parseCloudinaryUrl('"cloudinary://123456:abcSECRET@my-cloud"')).toMatchObject({ apiKey: "123456" });
   });
 
   it("signs like Cloudinary's documented example", () => {
