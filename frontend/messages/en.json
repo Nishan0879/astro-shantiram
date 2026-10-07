@@ -12,6 +12,7 @@
     "articles": "Articles",
     "events": "Events",
     "gallery": "Gallery",
+    "books": "Books",
     "contact": "Contact",
     "book": "Book Consultation",
     "language": "Language"
@@ -145,6 +146,62 @@
       "community": "Community",
       "spiritual": "Spiritual activities",
       "travel": "Travel"
+    }
+  },
+  "Books": {
+    "title": "Books",
+    "intro": "Read Guruji's books and texts online, or download them to read later.",
+    "all": "All",
+    "search": "Search",
+    "searchPlaceholder": "Search by title or author",
+    "clear": "Clear",
+    "empty": "No books here yet.",
+    "noResults": "No books match “{q}”.",
+    "by": "by {author}",
+    "featured": "Featured",
+    "read": "Read online",
+    "download": "Download PDF",
+    "pages": "{count, plural, one {# page} other {# pages}}",
+    "writtenIn": "Language",
+    "publishedOn": "Published",
+    "topic": "Topic",
+    "back": "All books",
+    "backToBook": "Back to book",
+    "previous": "Previous",
+    "next": "Next",
+    "otherLanguage": "This book's details are not available in your language yet, so they are shown in {language}.",
+    "categories": {
+      "astrology": "Astrology",
+      "spirituality": "Spirituality",
+      "dharma": "Sanatan Dharma",
+      "sanskrit": "Sanskrit",
+      "culture": "Nepali culture",
+      "puja": "Puja",
+      "philosophy": "Philosophy",
+      "other": "Other"
+    },
+    "languages": {
+      "en": "English",
+      "ne": "Nepali",
+      "sa": "Sanskrit",
+      "hi": "Hindi",
+      "other": "Other"
+    },
+    "reader": {
+      "loading": "Opening the book…",
+      "error": "The book could not be opened here. You can still download it.",
+      "page": "Page",
+      "of": "of {total}",
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "find": "Find in book",
+      "findShort": "Find",
+      "findPlaceholder": "Word to find",
+      "searching": "Searching…",
+      "found": "Found on {count, plural, one {# page} other {# pages}}:",
+      "notFound": "Not found in this book."
     }
   },
   "Contact": {

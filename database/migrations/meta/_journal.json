@@ -36,6 +36,13 @@
       "when": 1791402890135,
       "tag": "0004_gallery",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791409332503,
+      "tag": "0005_books",
+      "breakpoints": true
     }
   ]
 }

@@ -5,10 +5,12 @@ import type { Database } from "./db/client.js";
 import { requireAuth, requireRole } from "./middleware/auth.js";
 import { errorHandler, notFound } from "./middleware/errors.js";
 import { adminArticlesRouter } from "./routes/admin-articles.js";
+import { adminBooksRouter } from "./routes/admin-books.js";
 import { adminEventsRouter } from "./routes/admin-events.js";
 import { adminGalleryRouter, adminUploadsRouter } from "./routes/admin-media.js";
 import { adminMessagesRouter } from "./routes/admin-messages.js";
 import { articlesRouter } from "./routes/articles.js";
+import { booksRouter } from "./routes/books.js";
 import { eventsRouter } from "./routes/events.js";
 import { galleryRouter } from "./routes/gallery.js";
 import { authRouter, type BootstrapAdmin } from "./routes/auth.js";
@@ -74,6 +76,8 @@ export function createApp({
   const contentEditors = [requireAuth(db, jwtSecret), requireRole("super_admin", "content_admin", "guru")];
   app.use("/api/admin/uploads", ...contentEditors, adminUploadsRouter({ media, mediaProblem }));
   app.use("/api/admin/gallery", ...contentEditors, adminGalleryRouter({ db, media }));
+  app.use("/api/books", booksRouter({ db }));
+  app.use("/api/admin/books", ...contentEditors, adminBooksRouter({ db, media }));
   app.use(
     "/api/admin/contact-messages",
     requireAuth(db, jwtSecret),

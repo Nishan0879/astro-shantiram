@@ -10,10 +10,14 @@ export default function CoverPhoto({
   url,
   error,
   onChange,
+  folder = "articles",
+  hint,
 }: {
   url: string;
   error?: string;
   onChange: (url: string) => void;
+  folder?: "articles" | "books";
+  hint?: string;
 }) {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -23,7 +27,7 @@ export default function CoverPhoto({
     setUploading(true);
     setUploadError(null);
     try {
-      onChange((await uploadPhoto(file, "articles")).url);
+      onChange((await uploadPhoto(file, folder)).url);
     } catch (e) {
       setUploadError(e instanceof Error ? e.message : "Uploading failed. Please try again.");
     } finally {
@@ -36,6 +40,7 @@ export default function CoverPhoto({
   return (
     <div className="text-sm">
       <p>Cover photo (optional)</p>
+      {hint && <p className="text-xs text-charcoal/60">{hint}</p>}
       {url ? (
         <div className="mt-2 flex flex-wrap items-end gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element -- Cloudinary already resizes it */}
