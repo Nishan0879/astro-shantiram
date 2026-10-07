@@ -88,6 +88,7 @@
     "sending": "Sending…",
     "success": "Thank you. Your message has been received.",
     "error": "Please check the highlighted fields.",
+    "failed": "Sorry, your message could not be sent. Please try again later.",
     "categories": {
       "general": "General Inquiry",
       "puja": "Puja",
