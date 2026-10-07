@@ -13,6 +13,7 @@
     "events": "Events",
     "gallery": "Gallery",
     "books": "Books",
+    "pravachan": "Pravachan",
     "contact": "Contact",
     "book": "Book Consultation",
     "language": "Language"
@@ -32,7 +33,12 @@
     "allServices": "View all services",
     "contactTitle": "Seek guidance",
     "contactText": "Send a message to ask about a consultation, a puja or an event.",
-    "contactButton": "Contact us"
+    "contactButton": "Contact us",
+    "latestTitle": "Latest Pravachan",
+    "latestText": "Talks by Guruji on the Gita, dharma and daily spiritual life.",
+    "allVideos": "All videos",
+    "facebookTitle": "Facebook updates",
+    "facebookLink": "Open our Facebook page"
   },
   "About": {
     "title": "About Guruji",
@@ -204,6 +210,49 @@
       "notFound": "Not found in this book."
     }
   },
+  "Pravachan": {
+    "title": "Pravachan",
+    "intro": "Spiritual talks by Guruji on the Bhagavad Gita, the Vedas, festivals and everyday dharma.",
+    "featured": "Featured",
+    "latest": "Latest videos",
+    "all": "All",
+    "allLanguages": "All languages",
+    "search": "Search",
+    "searchPlaceholder": "Search the videos",
+    "language": "Language",
+    "clear": "Clear",
+    "empty": "No videos here yet.",
+    "noResults": "No videos match “{q}”.",
+    "back": "All videos",
+    "previous": "Previous",
+    "next": "Next",
+    "watchOnYoutube": "Watch on YouTube",
+    "subscribe": "Subscribe on YouTube",
+    "more": "More on {topic}",
+    "short": "Short",
+    "live": "Live",
+    "otherLanguage": "This video's details are not available in your language yet, so they are shown in {language}.",
+    "categories": {
+      "gita": "Bhagavad Gita",
+      "vedas": "Vedas",
+      "upanishads": "Upanishads",
+      "puranas": "Puranas",
+      "dharma": "Sanatan Dharma",
+      "spirituality": "Spirituality",
+      "culture": "Nepali culture",
+      "festivals": "Festival teachings",
+      "astrology": "Astrology",
+      "puja": "Puja",
+      "other": "Other"
+    },
+    "languages": {
+      "en": "English",
+      "ne": "Nepali",
+      "sa": "Sanskrit",
+      "hi": "Hindi",
+      "other": "Other"
+    }
+  },
   "Contact": {
     "title": "Contact",
     "intro": "Send a message and we will get back to you.",
@@ -229,6 +278,8 @@
     }
   },
   "Footer": {
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "youtube": "YouTube",
+    "facebook": "Facebook"
   }
 }

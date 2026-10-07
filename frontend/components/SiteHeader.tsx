@@ -11,6 +11,7 @@ const navItems = [
   { href: "/events", key: "events" },
   { href: "/gallery", key: "gallery" },
   { href: "/books", key: "books" },
+  { href: "/pravachan", key: "pravachan" },
   { href: "/contact", key: "contact" },
 ] as const;
 

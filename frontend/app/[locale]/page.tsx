@@ -1,8 +1,13 @@
 import { useTranslations } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
-import { use } from "react";
+import { connection } from "next/server";
+import { Suspense, use } from "react";
+import VideoCard from "@/components/VideoCard";
 import { Link } from "@/i18n/navigation";
+import { publicJson } from "@/lib/public-api";
 import { astrologyServices, pujaServices } from "@/lib/services";
+import { facebookFeedUrl, facebookPageUrl, youtubeChannelUrl } from "@/lib/site";
+import type { VideoList } from "@/lib/videos";
 
 export default function HomePage({ params }: PageProps<"/[locale]">) {
   const { locale } = use(params);
@@ -68,6 +73,12 @@ export default function HomePage({ params }: PageProps<"/[locale]">) {
         </div>
       </section>
 
+      <Suspense>
+        <LatestPravachan locale={locale} />
+      </Suspense>
+
+      <FacebookUpdates />
+
       <section className="mx-auto max-w-3xl px-4 py-16 text-center">
         <h2 className="font-serif text-3xl text-maroon">{t("contactTitle")}</h2>
         <p className="mt-4">{t("contactText")}</p>
@@ -76,5 +87,72 @@ export default function HomePage({ params }: PageProps<"/[locale]">) {
         </Link>
       </section>
     </>
+  );
+}
+
+async function latestVideos(locale: string) {
+  try {
+    return (await publicJson<VideoList>(`/api/videos?locale=${locale}&limit=3`))?.videos ?? [];
+  } catch {
+    // The home page still works if the video list cannot be loaded
+    return [];
+  }
+}
+
+async function LatestPravachan({ locale }: { locale: string }) {
+  // Load the list for each visit, not once when the site is built
+  await connection();
+  const videos = await latestVideos(locale);
+  if (videos.length === 0) return null;
+  return <LatestPravachanList videos={videos} />;
+}
+
+function LatestPravachanList({ videos }: { videos: VideoList["videos"] }) {
+  const t = useTranslations("Home");
+  const p = useTranslations("Pravachan");
+  return (
+    <section className="mx-auto max-w-6xl px-4 py-16">
+      <h2 className="text-center font-serif text-3xl text-maroon">{t("latestTitle")}</h2>
+      <p className="mx-auto mt-4 max-w-2xl text-center">{t("latestText")}</p>
+      <ul className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {videos.map((v) => (
+          <li key={v.youtubeId}>
+            <VideoCard video={v} />
+          </li>
+        ))}
+      </ul>
+      <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2">
+        <Link href="/pravachan" className="text-saffron hover:underline">
+          {t("allVideos")} →
+        </Link>
+        <a href={youtubeChannelUrl} target="_blank" rel="noopener" className="text-saffron hover:underline">
+          {p("subscribe")} ↗
+        </a>
+      </div>
+    </section>
+  );
+}
+
+/** Facebook's own embedded feed, so the page needs no Facebook app or access token. */
+function FacebookUpdates() {
+  const t = useTranslations("Home");
+  const feed = facebookFeedUrl(500);
+  if (!feed) return null;
+  return (
+    <section className="bg-cream">
+      <div className="mx-auto max-w-6xl px-4 py-16 text-center">
+        <h2 className="font-serif text-3xl text-maroon">{t("facebookTitle")}</h2>
+        <iframe
+          src={feed}
+          title={t("facebookTitle")}
+          loading="lazy"
+          className="mx-auto mt-8 h-[600px] w-full max-w-[500px] rounded-xl border border-gold/30 bg-white"
+          allow="encrypted-media; web-share"
+        />
+        <a href={facebookPageUrl} target="_blank" rel="noopener" className="mt-6 inline-block text-saffron hover:underline">
+          {t("facebookLink")} ↗
+        </a>
+      </div>
+    </section>
   );
 }
