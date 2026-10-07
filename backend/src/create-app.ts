@@ -1,10 +1,14 @@
 import cors from "cors";
 import express from "express";
-import helmet from "helmet";
+import helmetImport from "helmet";
 import type { Database } from "./db/client.js";
 import { errorHandler, notFound } from "./middleware/errors.js";
 import { contactRouter } from "./routes/contact.js";
 import type { Mailer } from "./services/mailer.js";
+
+// Vercel's builder type-checks files as CommonJS, where helmet's default import
+// is typed as the module object. At runtime it is the middleware either way.
+const helmet = helmetImport as unknown as typeof import("helmet").default;
 
 export type AppDeps = {
   db: Database;
