@@ -4,6 +4,7 @@ import { logout } from "../actions";
 const nav = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/messages", label: "Messages" },
+  { href: "/admin/articles", label: "Articles" },
   { href: "/admin/account", label: "Account" },
 ] as const;
 

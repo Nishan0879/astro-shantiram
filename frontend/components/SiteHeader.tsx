@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { Suspense } from "react";
 import { Link } from "@/i18n/navigation";
 import LanguageSwitcher from "./LanguageSwitcher";
 
@@ -6,6 +7,7 @@ const navItems = [
   { href: "/", key: "home" },
   { href: "/about", key: "about" },
   { href: "/services", key: "services" },
+  { href: "/articles", key: "articles" },
   { href: "/contact", key: "contact" },
 ] as const;
 
@@ -25,7 +27,10 @@ export default function SiteHeader() {
               {t(item.key)}
             </Link>
           ))}
-          <LanguageSwitcher />
+          {/* Pages with unknown paths (e.g. an article) read the path at request time */}
+          <Suspense fallback={<span className="w-24" />}>
+            <LanguageSwitcher />
+          </Suspense>
           <Link
             href="/contact"
             className="rounded-full bg-saffron px-4 py-2 font-medium text-white hover:bg-saffron-dark"

@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { pgTable, primaryKey, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 
 export const contactMessages = pgTable("contact_messages", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -37,3 +37,49 @@ export const users = pgTable("users", {
 });
 
 export type User = typeof users.$inferSelect;
+
+export const articleCategories = [
+  "astrology",
+  "spiritual",
+  "festivals",
+  "sanskrit",
+  "culture",
+  "puja",
+  "dharma",
+  "guidance",
+] as const;
+export type ArticleCategory = (typeof articleCategories)[number];
+
+export const contentLocales = ["en", "ne", "sa"] as const;
+export type ContentLocale = (typeof contentLocales)[number];
+
+export const articles = pgTable("articles", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  // Used in the address, e.g. /articles/meaning-of-maha-shivaratri
+  slug: varchar("slug", { length: 120 }).notNull().unique(),
+  category: varchar("category", { length: 32 }).$type<ArticleCategory>().notNull(),
+  status: varchar("status", { length: 16 }).$type<"draft" | "published">().notNull().default("draft"),
+  // Set the first time the article is published
+  publishedAt: timestamp("published_at", { withTimezone: true }),
+  authorId: uuid("author_id").references(() => users.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// One row per language an article is written in
+export const articleTranslations = pgTable(
+  "article_translations",
+  {
+    articleId: uuid("article_id")
+      .notNull()
+      .references(() => articles.id, { onDelete: "cascade" }),
+    locale: varchar("locale", { length: 8 }).$type<ContentLocale>().notNull(),
+    title: varchar("title", { length: 200 }).notNull(),
+    summary: varchar("summary", { length: 500 }),
+    body: text("body").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.articleId, t.locale] })],
+);
+
+export type Article = typeof articles.$inferSelect;
+export type ArticleTranslation = typeof articleTranslations.$inferSelect;

@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { setMessageStatus } from "@/app/admin/actions";
+import { deleteMessage, setMessageStatus } from "@/app/admin/actions";
 import { adminFetch, type ContactMessage, formatDate, type MessageStatus } from "@/lib/admin-api";
 import { secondaryButtonClass, statusStyles } from "../../../styles";
-import DeleteButton from "./DeleteButton";
+import DeleteButton from "../../../DeleteButton";
 
 export const metadata: Metadata = { title: "Message" };
 
@@ -89,7 +89,10 @@ async function Message({ params }: Pick<PageProps<"/admin/messages/[id]">, "para
               </button>
             </form>
           ))}
-        <DeleteButton id={m.id} />
+        <DeleteButton
+          action={deleteMessage.bind(null, m.id)}
+          confirmText="Delete this message for good? This cannot be undone."
+        />
       </div>
     </article>
   );

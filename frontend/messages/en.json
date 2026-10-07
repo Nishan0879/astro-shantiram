@@ -9,6 +9,7 @@
     "home": "Home",
     "about": "About Guru",
     "services": "Services",
+    "articles": "Articles",
     "contact": "Contact",
     "book": "Book Consultation",
     "language": "Language"
@@ -73,6 +74,32 @@
       "bratabandha": "Bratabandha",
       "shraddha": "Shraddha",
       "custom": "Other Custom Puja"
+    }
+  },
+  "Articles": {
+    "title": "Articles",
+    "intro": "Teachings on astrology, festivals, puja and dharma from Guruji.",
+    "all": "All",
+    "empty": "No articles here yet.",
+    "readMore": "Read more",
+    "back": "All articles",
+    "newer": "Newer",
+    "older": "Older",
+    "otherLanguage": "This article is not available in English yet, so it is shown in {language}.",
+    "languages": {
+      "en": "English",
+      "ne": "Nepali",
+      "sa": "Sanskrit"
+    },
+    "categories": {
+      "astrology": "Astrology",
+      "spiritual": "Spiritual teachings",
+      "festivals": "Festivals",
+      "sanskrit": "Sanskrit meanings",
+      "culture": "Nepali culture",
+      "puja": "Puja",
+      "dharma": "Dharma",
+      "guidance": "Astrology guidance"
     }
   },
   "Contact": {
