@@ -9,7 +9,7 @@ import type { GalleryCategory } from "@/lib/media";
 export type UploadSignature = { uploadUrl: string; apiKey: string; timestamp: number; folder: string; signature: string };
 
 /** Permission for the browser to upload one photo straight to Cloudinary. */
-export async function signUpload(folder: "gallery" | "articles"): Promise<UploadSignature | { error: string }> {
+export async function signUpload(folder: "gallery" | "articles" | "books"): Promise<UploadSignature | { error: string }> {
   const res = await adminFetch("/api/admin/uploads/sign", { method: "POST", body: JSON.stringify({ folder }) });
   if (res.status === 503) {
     const body = (await res.json().catch(() => ({}))) as { detail?: string };

@@ -1,4 +1,4 @@
-import { date, integer, jsonb, pgTable, primaryKey, text, time, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { boolean, date, integer, jsonb, pgTable, primaryKey, text, time, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 
 export const contactMessages = pgTable("contact_messages", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -136,3 +136,44 @@ export const galleryItems = pgTable("gallery_items", {
 });
 
 export type GalleryItem = typeof galleryItems.$inferSelect;
+
+export const bookCategories = ["astrology", "spirituality", "dharma", "sanskrit", "culture", "puja", "philosophy", "other"] as const;
+export type BookCategory = (typeof bookCategories)[number];
+
+// The language the book itself is written in (it may be one we have no site translation for)
+export const bookLanguages = ["en", "ne", "sa", "hi", "other"] as const;
+export type BookLanguage = (typeof bookLanguages)[number];
+
+export const books = pgTable("books", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  slug: varchar("slug", { length: 120 }).notNull().unique(),
+  status: varchar("status", { length: 16 }).$type<"draft" | "published">().notNull().default("draft"),
+  category: varchar("category", { length: 32 }).$type<BookCategory>().notNull(),
+  language: varchar("language", { length: 8 }).$type<BookLanguage>().notNull(),
+  publishedOn: date("published_on"),
+  featured: boolean("featured").notNull().default(false),
+  // The PDF lives in Cloudinary; its first page doubles as the cover when there is no cover photo
+  pdfUrl: varchar("pdf_url", { length: 500 }).notNull(),
+  pdfPublicId: varchar("pdf_public_id", { length: 300 }),
+  pageCount: integer("page_count"),
+  coverUrl: varchar("cover_url", { length: 500 }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Title, author and description per site language
+export const bookTranslations = pgTable(
+  "book_translations",
+  {
+    bookId: uuid("book_id")
+      .notNull()
+      .references(() => books.id, { onDelete: "cascade" }),
+    locale: varchar("locale", { length: 8 }).$type<ContentLocale>().notNull(),
+    title: varchar("title", { length: 200 }).notNull(),
+    author: varchar("author", { length: 200 }),
+    description: text("description"),
+  },
+  (t) => [primaryKey({ columns: [t.bookId, t.locale] })],
+);
+
+export type Book = typeof books.$inferSelect;
