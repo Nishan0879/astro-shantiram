@@ -86,7 +86,7 @@ export default function EventForm({ id, initial }: { id: string | null; initial:
           {fieldError("eventDate")}
         </label>
         <label className="block text-sm">
-          Starts (Eastern time, optional)
+          Starts (Central time, optional)
           <input type="time" value={values.startTime} onChange={(e) => setField("startTime", e.target.value)} className={fieldClass("startTime")} />
           {fieldError("startTime")}
         </label>
@@ -129,7 +129,7 @@ export default function EventForm({ id, initial }: { id: string | null; initial:
             value={t.location}
             onChange={(e) => setTranslation("location", e.target.value)}
             maxLength={200}
-            placeholder="e.g. Hindu Temple, Queens, NY or Online"
+            placeholder="e.g. DFW Hindu Temple, Irving, TX or Online"
             className={inputClass}
           />
         </label>

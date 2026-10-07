@@ -28,7 +28,7 @@ const shivaratri = {
   youtubeUrl: "https://www.youtube.com/watch?v=abc",
   zoomUrl: "",
   translations: {
-    en: { name: "Mahashivaratri Puja", location: "Hindu Temple, Queens, NY", description: "Night-long puja." },
+    en: { name: "Mahashivaratri Puja", location: "DFW Hindu Temple, Irving, TX", description: "Night-long puja." },
     ne: { name: "महाशिवरात्रि पूजा", location: "", description: "" },
   },
 };
@@ -119,7 +119,7 @@ describe("public events", () => {
     await post({ ...shivaratri, slug: "draft", status: "draft" });
 
     const res = await request(api()).get(`/api/events/${shivaratri.slug}?locale=sa`);
-    expect(res.body.event).toMatchObject({ locale: "en", location: "Hindu Temple, Queens, NY", isPast: false });
+    expect(res.body.event).toMatchObject({ locale: "en", location: "DFW Hindu Temple, Irving, TX", isPast: false });
     expect((await request(api()).get("/api/events/draft")).status).toBe(404);
   });
 });

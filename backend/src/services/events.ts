@@ -63,10 +63,10 @@ export function eventTranslationRows(eventId: string, input: EventInput) {
   });
 }
 
-/** The astrologer and visitors are in the US; event dates and times are US Eastern. */
-export const SITE_TIME_ZONE = "America/New_York";
+/** The astrologer is in Dallas-Fort Worth; event dates and times are US Central. */
+export const SITE_TIME_ZONE = "America/Chicago";
 
-/** Today's date in US Eastern time as YYYY-MM-DD, which decides upcoming vs past. */
+/** Today's date in US Central time as YYYY-MM-DD, which decides upcoming vs past. */
 export function todayLocal(now = new Date()) {
   return new Intl.DateTimeFormat("en-CA", { timeZone: SITE_TIME_ZONE }).format(now);
 }
