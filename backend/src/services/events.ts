@@ -63,7 +63,10 @@ export function eventTranslationRows(eventId: string, input: EventInput) {
   });
 }
 
-/** Today's date in Nepal as YYYY-MM-DD, which decides upcoming vs past. */
-export function todayInNepal(now = new Date()) {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kathmandu" }).format(now);
+/** The astrologer and visitors are in the US; event dates and times are US Eastern. */
+export const SITE_TIME_ZONE = "America/New_York";
+
+/** Today's date in US Eastern time as YYYY-MM-DD, which decides upcoming vs past. */
+export function todayLocal(now = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: SITE_TIME_ZONE }).format(now);
 }

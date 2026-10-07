@@ -3,7 +3,7 @@ import { Router } from "express";
 import { z } from "zod";
 import type { Database } from "../db/client.js";
 import { events, eventTranslations } from "../db/schema.js";
-import { type EventInput, eventInputSchema, eventTranslationRows, todayInNepal } from "../services/events.js";
+import { type EventInput, eventInputSchema, eventTranslationRows, todayLocal } from "../services/events.js";
 
 const idParam = z.uuid();
 
@@ -52,7 +52,7 @@ export function adminEventsRouter({ db }: { db: Database }) {
         .select({ eventId: eventTranslations.eventId, locale: eventTranslations.locale, name: eventTranslations.name })
         .from(eventTranslations),
     ]);
-    const today = todayInNepal();
+    const today = todayLocal();
     res.json({
       events: rows.map((e) => {
         const own = translations.filter((t) => t.eventId === e.id);

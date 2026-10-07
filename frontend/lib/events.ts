@@ -22,7 +22,13 @@ export function eventDay(eventDate: string) {
   return new Date(`${eventDate}T00:00:00Z`);
 }
 
-export function timeRange(start: string | null, end: string | null) {
+/** "18:30" or "18:30:00" as "6:30 PM" (English) or the locale's own clock style. */
+export function formatTime(time: string, locale = "en-US") {
+  const [h, m] = time.split(":").map(Number);
+  return new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit", timeZone: "UTC" }).format(Date.UTC(2000, 0, 1, h, m));
+}
+
+export function timeRange(start: string | null, end: string | null, locale = "en-US") {
   if (!start) return null;
-  return end ? `${start} – ${end}` : start;
+  return end ? `${formatTime(start, locale)} – ${formatTime(end, locale)}` : formatTime(start, locale);
 }

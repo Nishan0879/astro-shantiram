@@ -71,7 +71,7 @@ async function EventListing({
         <ul className="mt-10 space-y-5">
           {events.map((e) => {
             const day = eventDay(e.eventDate);
-            const time = timeRange(e.startTime, e.endTime);
+            const time = timeRange(e.startTime, e.endTime, locale);
             return (
               <li key={e.slug} className="flex gap-4 rounded-xl border border-gold/30 bg-cream p-5">
                 <div className="w-16 shrink-0 self-start rounded-lg bg-maroon py-2 text-center text-cream">
@@ -86,7 +86,7 @@ async function EventListing({
                   </h2>
                   <p className="mt-1 text-sm text-charcoal/80">
                     {format.dateTime(day, { dateStyle: "full", timeZone: "UTC" })}
-                    {time && ` · ${time}`}
+                    {time && ` · ${time} ${t("timeZoneShort")}`}
                   </p>
                   {e.location && <p lang={e.locale} className="text-sm text-charcoal/80">{e.location}</p>}
                   <Link href={`/events/${e.slug}`} className="mt-2 inline-block text-sm text-saffron hover:underline">

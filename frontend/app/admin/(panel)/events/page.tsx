@@ -33,7 +33,7 @@ export default function EventsAdminPage() {
   );
 }
 
-const dateFormat = new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+const dateFormat = new Intl.DateTimeFormat("en-US", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 
 async function EventRows() {
   const { events } = await adminJson<{ events: AdminEventRow[] }>("/api/admin/events");

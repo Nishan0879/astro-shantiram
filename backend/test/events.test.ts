@@ -7,7 +7,7 @@ import { createApp } from "../src/create-app.js";
 import type { Database } from "../src/db/client.js";
 import * as schema from "../src/db/schema.js";
 import { signToken } from "../src/services/auth.js";
-import { todayInNepal } from "../src/services/events.js";
+import { todayLocal } from "../src/services/events.js";
 
 const jwtSecret = "test-secret-that-is-at-least-32-chars";
 let db: Database;
@@ -28,7 +28,7 @@ const shivaratri = {
   youtubeUrl: "https://www.youtube.com/watch?v=abc",
   zoomUrl: "",
   translations: {
-    en: { name: "Mahashivaratri Puja", location: "Pashupatinath, Kathmandu", description: "Night-long puja." },
+    en: { name: "Mahashivaratri Puja", location: "Hindu Temple, Queens, NY", description: "Night-long puja." },
     ne: { name: "महाशिवरात्रि पूजा", location: "", description: "" },
   },
 };
@@ -98,7 +98,7 @@ describe("admin events", () => {
 
 describe("public events", () => {
   it("splits upcoming (soonest first) from past (latest first) and hides drafts", async () => {
-    const today = todayInNepal();
+    const today = todayLocal();
     await post(shivaratri);
     await post({ ...shivaratri, slug: "soon", eventDate: "2098-01-01" });
     await post({ ...shivaratri, slug: "today", eventDate: today });
@@ -119,7 +119,7 @@ describe("public events", () => {
     await post({ ...shivaratri, slug: "draft", status: "draft" });
 
     const res = await request(api()).get(`/api/events/${shivaratri.slug}?locale=sa`);
-    expect(res.body.event).toMatchObject({ locale: "en", location: "Pashupatinath, Kathmandu", isPast: false });
+    expect(res.body.event).toMatchObject({ locale: "en", location: "Hindu Temple, Queens, NY", isPast: false });
     expect((await request(api()).get("/api/events/draft")).status).toBe(404);
   });
 });

@@ -3,7 +3,7 @@ import { Router } from "express";
 import { z } from "zod";
 import type { Database } from "../db/client.js";
 import { contentLocales, type Event, events, eventTranslations } from "../db/schema.js";
-import { todayInNepal } from "../services/events.js";
+import { todayLocal } from "../services/events.js";
 import { pickTranslation } from "../services/translations.js";
 
 const PAGE_SIZE = 12;
@@ -39,7 +39,7 @@ export function eventsRouter({ db }: { db: Database }) {
       return;
     }
     const { locale, when, page } = parsed.data;
-    const today = todayInNepal();
+    const today = todayLocal();
     const where = and(
       eq(events.status, "published"),
       when === "upcoming" ? gte(events.eventDate, today) : lt(events.eventDate, today),
@@ -87,7 +87,7 @@ export function eventsRouter({ db }: { db: Database }) {
     res.json({
       event: {
         ...publicFields(event),
-        isPast: event.eventDate < todayInNepal(),
+        isPast: event.eventDate < todayLocal(),
         locale: t.locale,
         name: t.name,
         location: t.location,

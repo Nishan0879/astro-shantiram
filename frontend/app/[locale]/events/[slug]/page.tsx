@@ -51,7 +51,7 @@ async function EventDetails({ params }: Pick<PageProps<"/[locale]/events/[slug]"
   if (!event) notFound();
   const t = await getTranslations({ locale, namespace: "Events" });
   const format = await getFormatter({ locale });
-  const time = timeRange(event.startTime, event.endTime);
+  const time = timeRange(event.startTime, event.endTime, locale);
 
   return (
     <>
@@ -69,7 +69,7 @@ async function EventDetails({ params }: Pick<PageProps<"/[locale]/events/[slug]"
           <dd>{format.dateTime(eventDay(event.eventDate), { dateStyle: "full", timeZone: "UTC" })}</dd>
           {time && (
             <dd>
-              {time} <span className="text-sm text-charcoal/60">({t("nepalTime")})</span>
+              {time} <span className="text-sm text-charcoal/60">({t("localTime")})</span>
             </dd>
           )}
           {event.location && <dd>{event.location}</dd>}

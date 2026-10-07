@@ -88,7 +88,7 @@ export const events = pgTable("events", {
   id: uuid("id").primaryKey().defaultRandom(),
   slug: varchar("slug", { length: 120 }).notNull().unique(),
   status: varchar("status", { length: 16 }).$type<"draft" | "published">().notNull().default("draft"),
-  // Local Nepal date and times, as the organiser types them
+  // US Eastern date and times, as the organiser types them
   eventDate: date("event_date").notNull(),
   startTime: time("start_time"),
   endTime: time("end_time"),
