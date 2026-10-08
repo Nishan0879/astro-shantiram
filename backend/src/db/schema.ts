@@ -1,4 +1,4 @@
-import { boolean, date, index, integer, jsonb, pgTable, primaryKey, text, time, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { boolean, date, index, integer, jsonb, pgTable, primaryKey, smallint, text, time, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 
 export const contactMessages = pgTable("contact_messages", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -486,3 +486,32 @@ export const pageViews = pgTable(
   },
   (t) => [index("page_views_day_idx").on(t.day)],
 );
+
+export const testimonialStatuses = ["new", "approved", "hidden", "spam"] as const;
+export type TestimonialStatus = (typeof testimonialStatuses)[number];
+
+// Reviews visitors send in. Nothing shows on the site until Guruji approves it.
+export const testimonials = pgTable(
+  "testimonials",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: varchar("name", { length: 80 }).notNull(),
+    // Where they are from, as they wrote it, e.g. "Irving, TX"
+    place: varchar("place", { length: 80 }),
+    // Kept private, so Guruji can check the review is from a real client
+    email: varchar("email", { length: 254 }).notNull(),
+    rating: smallint("rating").notNull(),
+    // What Guruji did for them, e.g. "Kundali reading"
+    service: varchar("service", { length: 120 }),
+    message: text("message").notNull(),
+    locale: varchar("locale", { length: 8 }).$type<ContentLocale>(),
+    status: varchar("status", { length: 16 }).$type<TestimonialStatus>().notNull().default("new"),
+    // Featured reviews come first on the home page
+    featured: boolean("featured").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    approvedAt: timestamp("approved_at", { withTimezone: true }),
+  },
+  (t) => [index("testimonials_status_idx").on(t.status)],
+);
+
+export type Testimonial = typeof testimonials.$inferSelect;

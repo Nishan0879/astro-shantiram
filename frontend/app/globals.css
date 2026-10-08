@@ -66,3 +66,20 @@ body {
   padding-left: 1em;
   font-style: italic;
 }
+
+/* Star rating picker: the stars are in reverse order in the markup, so the chosen star and
+   every star after it in the markup (the lower ones, shown to its left) light up */
+.star-input label {
+  color: color-mix(in srgb, var(--color-gold) 30%, transparent);
+}
+.star-input:not(:hover) label:has(input:checked),
+.star-input:not(:hover) label:has(input:checked) ~ label,
+.star-input label:hover,
+.star-input label:hover ~ label {
+  color: var(--color-gold);
+}
+.star-input label:has(input:focus-visible) {
+  outline: 2px solid var(--color-saffron);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

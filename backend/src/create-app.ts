@@ -27,6 +27,7 @@ import { galleryRouter } from "./routes/gallery.js";
 import { horoscopesRouter } from "./routes/horoscopes.js";
 import { searchRouter } from "./routes/search.js";
 import { adminStatsRouter, statsRouter } from "./routes/stats.js";
+import { adminTestimonialsRouter, testimonialsRouter } from "./routes/testimonials.js";
 import { servicesRouter } from "./routes/services.js";
 import { videosRouter } from "./routes/videos.js";
 import { authRouter, type BootstrapAdmin } from "./routes/auth.js";
@@ -122,6 +123,8 @@ export function createApp({
   app.use("/api/horoscopes", horoscopesRouter({ db, today }));
   app.use("/api/admin/horoscopes", ...contentEditors, adminHoroscopesRouter({ db }));
   app.use("/api/search", searchRouter({ db }));
+  app.use("/api/testimonials", testimonialsRouter({ db, mailer, notifyEmail, internalApiKey }));
+  app.use("/api/admin/testimonials", ...contentEditors, adminTestimonialsRouter({ db }));
   app.use("/api/stats", statsRouter({ db, internalApiKey, siteHosts: [new URL(siteUrl).hostname.replace(/^www\./, "")], now }));
   app.use("/api/admin/stats", requireAuth(db, jwtSecret), requireRole("super_admin", "guru"), adminStatsRouter({ db, now }));
   app.use("/api/services", servicesRouter({ db }));
