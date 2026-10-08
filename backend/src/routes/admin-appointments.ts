@@ -133,7 +133,7 @@ export function adminAppointmentsRouter({ db, mailer, now = () => new Date() }: 
     }
     const [row] = await db
       .update(appointments)
-      .set({ date, startTime: time, status: "rescheduled", updatedAt: new Date() })
+      .set({ date, startTime: time, status: "rescheduled", reminderSentAt: null, updatedAt: new Date() })
       .where(eq(appointments.id, existing.id))
       .returning();
     if (notify) await tellCustomer(row, "Your booking has a new time", "Your booking has been moved to a new time. The details are below.");

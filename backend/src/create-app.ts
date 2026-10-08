@@ -6,6 +6,7 @@ import { requireAuth, requireRole } from "./middleware/auth.js";
 import { errorHandler, notFound } from "./middleware/errors.js";
 import { adminAppointmentsRouter, adminScheduleRouter } from "./routes/admin-appointments.js";
 import { adminArticlesRouter } from "./routes/admin-articles.js";
+import { cronRouter } from "./routes/cron.js";
 import { adminEmailRouter } from "./routes/admin-email.js";
 import { adminBooksRouter } from "./routes/admin-books.js";
 import { adminEventsRouter } from "./routes/admin-events.js";
@@ -48,6 +49,8 @@ export type AppDeps = {
   today?: () => string;
   /** The current moment, for booking; tests pin it */
   now?: () => Date;
+  /** Vercel Cron's shared secret; scheduled jobs stay off without it */
+  cronSecret?: string;
 };
 
 export function createApp({
@@ -63,6 +66,7 @@ export function createApp({
   youtubeFetch,
   today,
   now,
+  cronSecret,
 }: AppDeps) {
   const app = express();
 
@@ -106,6 +110,7 @@ export function createApp({
   app.use("/api/booking", bookingRouter({ db, mailer, notifyEmail, internalApiKey, now }));
   app.use("/api/admin/appointments", ...schedulers, adminAppointmentsRouter({ db, mailer, now }));
   app.use("/api/admin/schedule", ...schedulers, adminScheduleRouter({ db, now }));
+  app.use("/api/cron", cronRouter({ db, mailer, cronSecret, now }));
   app.use("/api/admin/email", requireAuth(db, jwtSecret), requireRole("super_admin"), adminEmailRouter({ mailer, notifyEmail }));
   app.use(
     "/api/admin/contact-messages",
