@@ -1,5 +1,6 @@
 import { randomInt } from "node:crypto";
 import { z } from "zod";
+import { usPhone } from "./phone.js";
 import { appointmentLanguages, type BookingSettings, contentLocales, serviceModes } from "../db/schema.js";
 
 export const SITE_TIME_ZONE = "America/Chicago";
@@ -116,7 +117,7 @@ export const bookingInputSchema = z
     language: z.enum(appointmentLanguages).default("en"),
     name: z.string().trim().min(1, "Add your name").max(120),
     email: z.email("Add a valid email").max(254),
-    phone: z.string().trim().min(7, "Add a phone number").max(40),
+    phone: usPhone,
     address: optionalText(300),
     gotra: optionalText(100),
     familyNames: optionalText(2000),

@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { addDays, appointmentLanguages, type AppointmentLanguage, type Availability, wallClock } from "@/lib/booking";
 import type { ServiceSummary } from "@/lib/services";
+import { phoneInputProps, tenDigits } from "@/lib/phone";
 import { type BookingResult, type BookingValues, loadAvailability, requestBooking } from "./actions";
 
 const inputClass = "mt-1 w-full rounded border border-gold/40 bg-warm-white px-3 py-2 focus:border-saffron focus:outline-none";
@@ -247,7 +248,7 @@ export default function BookingFlow({ service, initial }: { service: ServiceSumm
             </label>
             <label className="block">
               {t("phone")}
-              <input type="tel" value={values.phone} onChange={(e) => set("phone", e.target.value)} required autoComplete="tel" className={`${inputClass} ${invalid("phone")}`} />
+              <input {...phoneInputProps} value={values.phone} onChange={(e) => set("phone", tenDigits(e.target.value))} required className={`${inputClass} ${invalid("phone")}`} />
               {errorText("phone")}
             </label>
           </div>

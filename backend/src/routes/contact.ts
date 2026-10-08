@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
+import { usPhone } from "../services/phone.js";
 import type { Database } from "../db/client.js";
 import { contactMessages } from "../db/schema.js";
 import { visitorRateLimit } from "../middleware/rate-limit.js";
@@ -18,7 +19,8 @@ export const inquiryCategories = [
 export const contactSchema = z.object({
   name: z.string().trim().min(1).max(120),
   email: z.email().max(254),
-  phone: z.string().trim().max(40).optional().transform((v) => v || undefined),
+  // Optional; left blank it is not stored
+  phone: z.union([z.literal("").transform(() => undefined), usPhone]).optional(),
   category: z.enum(inquiryCategories),
   subject: z.string().trim().min(1).max(200),
   message: z.string().trim().min(1).max(5000),

@@ -393,7 +393,7 @@
     "errors": {
       "name": "Add your name",
       "email": "Add a valid email",
-      "phone": "Add a phone number",
+      "phone": "Enter a 10-digit phone number",
       "address": "Add the address",
       "time": "Choose a time",
       "mode": "Choose how you would like to meet",
