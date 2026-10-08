@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { getLocale } from "next-intl/server";
 import { z } from "zod";
 import { inquiryCategories } from "@/lib/services";
+import { caughtBySpamTrap } from "@/lib/spam-trap";
 
 const contactSchema = z.object({
   name: z.string().trim().min(1).max(120),
@@ -27,6 +28,10 @@ export async function submitContact(
   _prev: ContactState,
   formData: FormData,
 ): Promise<ContactState> {
+  // A bot is told it worked, so it does not try again another way
+  if (caughtBySpamTrap({ website: String(formData.get("website") ?? ""), startedAt: String(formData.get("startedAt") ?? "") })) {
+    return { status: "success" };
+  }
   const parsed = contactSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
     return { status: "error", fieldErrors: z.flattenError(parsed.error).fieldErrors };

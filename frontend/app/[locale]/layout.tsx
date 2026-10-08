@@ -5,12 +5,14 @@ import {
   Playfair_Display,
 } from "next/font/google";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { siteUrl } from "@/lib/site";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import PageViewTracker from "@/components/PageViewTracker";
 import "../globals.css";
 
 const playfair = Playfair_Display({
@@ -62,6 +64,10 @@ export default async function LocaleLayout({
           <SiteHeader />
           <main className="flex-1">{children}</main>
           <SiteFooter />
+          {/* Reads the page address, which some pages only know per request */}
+          <Suspense fallback={null}>
+            <PageViewTracker />
+          </Suspense>
         </NextIntlClientProvider>
       </body>
     </html>

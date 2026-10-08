@@ -4,7 +4,7 @@ import { siteTimeZone } from "./site";
 
 export const ADMIN_COOKIE = "admin_token";
 
-export const messageStatuses = ["new", "read", "replied", "archived"] as const;
+export const messageStatuses = ["new", "read", "replied", "archived", "spam"] as const;
 export type MessageStatus = (typeof messageStatuses)[number];
 
 export type ContactMessage = {

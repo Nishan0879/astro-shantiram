@@ -9,12 +9,12 @@ export const contactMessages = pgTable("contact_messages", {
   subject: varchar("subject", { length: 200 }).notNull(),
   message: text("message").notNull(),
   locale: varchar("locale", { length: 8 }),
-  // new → read → replied / archived, managed from the admin dashboard later
+  // new → read → replied / archived, managed from the admin dashboard; spam is set on arrival
   status: varchar("status", { length: 16 }).notNull().default("new"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const contactStatuses = ["new", "read", "replied", "archived"] as const;
+export const contactStatuses = ["new", "read", "replied", "archived", "spam"] as const;
 export type ContactStatus = (typeof contactStatuses)[number];
 
 export type ContactMessage = typeof contactMessages.$inferSelect;
@@ -467,3 +467,22 @@ export const appointments = pgTable(
 );
 
 export type Appointment = typeof appointments.$inferSelect;
+
+// One row per page a visitor opens. No cookies and no IP addresses: "visitor" is a hash that
+// changes every day, so it counts people for a day without being able to follow anyone.
+export const pageViews = pgTable(
+  "page_views",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    viewedAt: timestamp("viewed_at", { withTimezone: true }).notNull().defaultNow(),
+    // US Central date, so "today" matches the admin's day
+    day: date("day").notNull(),
+    path: varchar("path", { length: 300 }).notNull(),
+    locale: varchar("locale", { length: 8 }),
+    // The other website the visitor came from, host name only
+    referrer: varchar("referrer", { length: 200 }),
+    device: varchar("device", { length: 8 }).$type<"mobile" | "tablet" | "desktop">().notNull(),
+    visitor: varchar("visitor", { length: 16 }).notNull(),
+  },
+  (t) => [index("page_views_day_idx").on(t.day)],
+);

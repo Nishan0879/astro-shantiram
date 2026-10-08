@@ -151,14 +151,18 @@ describe("/api/admin/contact-messages", () => {
         message({ subject: `New ${i}`, createdAt: new Date(base - i * 1000) }),
       ),
       message({ subject: "Done", status: "replied" }),
+      message({ subject: "Buy backlinks", status: "spam", createdAt: new Date(base + 1000) }),
     ]);
     const t = await token();
     const get = (q: string) => request(app()).get(`/api/admin/contact-messages${q}`).auth(t, { type: "bearer" });
 
     const all = await get("");
     expect(all.body.total).toBe(22);
-    expect(all.body.counts).toEqual({ new: 21, read: 0, replied: 1, archived: 0 });
+    expect(all.body.counts).toEqual({ new: 21, read: 0, replied: 1, archived: 0, spam: 1 });
     expect(all.body.messages).toHaveLength(20);
+    // Spam stays in its own folder
+    expect(all.body.messages.map((m: { subject: string }) => m.subject)).not.toContain("Buy backlinks");
+    expect((await get("?status=spam")).body.messages).toMatchObject([{ subject: "Buy backlinks" }]);
 
     const page2 = await get("?status=new&page=2");
     expect(page2.body.total).toBe(21);

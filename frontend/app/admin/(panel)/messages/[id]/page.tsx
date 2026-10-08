@@ -31,11 +31,15 @@ async function Message({ params }: Pick<PageProps<"/admin/messages/[id]">, "para
   if (!res.ok) throw new Error(`Loading message failed: ${res.status}`);
   const { message: m } = (await res.json()) as { message: ContactMessage };
 
-  const statusButtons: { status: MessageStatus; label: string }[] = [
-    { status: "replied", label: "Mark as replied" },
-    { status: "archived", label: "Archive" },
-    { status: "new", label: "Mark as unread" },
-  ];
+  const statusButtons: { status: MessageStatus; label: string }[] =
+    m.status === "spam"
+      ? [{ status: "new", label: "Not spam" }]
+      : [
+          { status: "replied", label: "Mark as replied" },
+          { status: "archived", label: "Archive" },
+          { status: "new", label: "Mark as unread" },
+          { status: "spam", label: "Spam" },
+        ];
   const replyHref = `mailto:${m.email}?subject=${encodeURIComponent(`Re: ${m.subject}`)}`;
 
   return (
@@ -74,6 +78,11 @@ async function Message({ params }: Pick<PageProps<"/admin/messages/[id]">, "para
         <dd>{formatDate(m.createdAt)} (Central time)</dd>
       </dl>
 
+      {m.status === "spam" && (
+        <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-900">
+          This looked like advertising, so no email was sent about it. If it is a real message, press &quot;Not spam&quot;.
+        </p>
+      )}
       <p className="mt-5 whitespace-pre-wrap break-words border-t border-gold/20 pt-4">{m.message}</p>
 
       <div className="mt-6 flex flex-wrap gap-2 border-t border-gold/20 pt-4">

@@ -4,7 +4,9 @@ import { usPhone } from "../services/phone.js";
 import type { Database } from "../db/client.js";
 import { contactMessages } from "../db/schema.js";
 import { visitorRateLimit } from "../middleware/rate-limit.js";
+import { websiteOnly } from "../middleware/website-only.js";
 import type { Mailer } from "../services/mailer.js";
+import { looksLikeSpam } from "../services/spam.js";
 
 export const inquiryCategories = [
   "general",
@@ -36,6 +38,7 @@ export function contactRouter({ db, mailer, notifyEmail, internalApiKey }: Deps)
 
   router.post(
     "/",
+    websiteOnly(internalApiKey),
     limiter,
     async (req, res) => {
       const parsed = contactSchema.safeParse(req.body);
@@ -44,12 +47,13 @@ export function contactRouter({ db, mailer, notifyEmail, internalApiKey }: Deps)
         return;
       }
 
+      const spam = looksLikeSpam(parsed.data);
       const [saved] = await db
         .insert(contactMessages)
-        .values(parsed.data)
+        .values({ ...parsed.data, status: spam ? "spam" : "new" })
         .returning({ id: contactMessages.id });
 
-      if (notifyEmail) {
+      if (notifyEmail && !spam) {
         const m = parsed.data;
         // The message is already saved, so a mail failure must not fail the request
         await mailer
