@@ -29,6 +29,13 @@ const envSchema = z.object({
   CONTACT_NOTIFY_EMAIL: z.string().optional(),
   MAIL_FROM: z.string().optional(),
 
+  // Zoom Server-to-Server OAuth app; Zoom bookings get a meeting made on confirm when all three are set
+  ZOOM_ACCOUNT_ID: z.string().optional(),
+  ZOOM_CLIENT_ID: z.string().optional(),
+  ZOOM_CLIENT_SECRET: z.string().optional(),
+  // Email of the Zoom user who hosts the meetings; defaults to the app's owner
+  ZOOM_HOST_EMAIL: z.string().optional(),
+
   // Vercel sends this with its scheduled calls; booking reminders stay off until it is set
   CRON_SECRET: z.string().min(16).optional(),
 });

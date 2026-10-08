@@ -1,0 +1,1 @@
+ALTER TABLE "appointments" ADD COLUMN "zoom_meeting_id" varchar(32);

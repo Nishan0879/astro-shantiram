@@ -40,6 +40,7 @@ export type Appointment = {
   familyNames: string | null;
   notes: string | null;
   meetingLink: string | null;
+  zoomMeetingId: string | null;
   adminNote: string | null;
   reminderSentAt: string | null;
   locale: string | null;

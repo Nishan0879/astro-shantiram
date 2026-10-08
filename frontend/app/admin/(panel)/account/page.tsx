@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import ChangePasswordForm from "./ChangePasswordForm";
 import EmailStatus from "./EmailStatus";
+import ZoomStatus from "./ZoomStatus";
 
 export const metadata: Metadata = { title: "Account" };
 
@@ -17,6 +18,9 @@ export default function AccountPage() {
         </section>
         <Suspense fallback={null}>
           <EmailStatus />
+        </Suspense>
+        <Suspense fallback={null}>
+          <ZoomStatus />
         </Suspense>
       </div>
     </>

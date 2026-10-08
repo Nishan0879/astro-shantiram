@@ -18,6 +18,12 @@ export default function AppointmentActions({ appointment: a, isPast }: { appoint
   const [date, setDate] = useState(a.date);
   const [time, setTime] = useState(a.startTime.slice(0, 5));
   const [meetingLink, setMeetingLink] = useState(a.meetingLink ?? "");
+  // Confirming can add a Zoom link (or cancelling remove it); show the new one
+  const [linkFromServer, setLinkFromServer] = useState(a.meetingLink);
+  if (a.meetingLink !== linkFromServer) {
+    setLinkFromServer(a.meetingLink);
+    setMeetingLink(a.meetingLink ?? "");
+  }
   const [adminNote, setAdminNote] = useState(a.adminNote ?? "");
   const [result, setResult] = useState<ActionResult & { what?: string }>({});
   const [pending, startTransition] = useTransition();
@@ -48,6 +54,13 @@ export default function AppointmentActions({ appointment: a, isPast }: { appoint
     <div className="space-y-6">
       {result.error && <p className="rounded bg-red-50 p-3 text-sm text-red-800">{result.error}</p>}
       {result.ok && <p className="rounded bg-green-50 p-3 text-sm text-green-900">Saved.</p>}
+      {result.notice && (
+        <p
+          className={`rounded p-3 text-sm ${result.notice.startsWith("Zoom problem") ? "bg-red-50 text-red-800" : "bg-green-50 text-green-900"}`}
+        >
+          {result.notice}
+        </p>
+      )}
 
       <section className="space-y-3">
         <div className="flex flex-wrap gap-2">
@@ -96,7 +109,11 @@ export default function AppointmentActions({ appointment: a, isPast }: { appoint
       >
         <label className="block text-sm">
           Meeting link (optional)
-          <span className="block text-xs text-charcoal/60">Paste the Zoom link here before confirming, so it is in the confirmation email.</span>
+          <span className="block text-xs text-charcoal/60">
+            {a.mode === "zoom"
+              ? "When Zoom is set up, confirming makes the meeting and adds its link here. Or paste your own link before confirming."
+              : "Paste a link here before confirming, so it is in the confirmation email."}
+          </span>
           <input
             value={meetingLink}
             onChange={(e) => setMeetingLink(e.target.value)}
