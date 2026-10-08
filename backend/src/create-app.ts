@@ -18,6 +18,7 @@ import { adminServicesRouter } from "./routes/admin-services.js";
 import { adminVideosRouter } from "./routes/admin-videos.js";
 import { articlesRouter } from "./routes/articles.js";
 import { bookingRouter } from "./routes/booking.js";
+import { manageBookingRouter } from "./routes/manage-booking.js";
 import { booksRouter } from "./routes/books.js";
 import { eventsRouter } from "./routes/events.js";
 import { galleryRouter } from "./routes/gallery.js";
@@ -55,6 +56,8 @@ export type AppDeps = {
   cronSecret?: string;
   /** Makes Zoom meetings for Zoom bookings; off when Zoom is not set up */
   zoom?: Zoom;
+  /** The public website's address, for links in customer emails */
+  siteUrl?: string;
 };
 
 export function createApp({
@@ -72,8 +75,11 @@ export function createApp({
   now,
   cronSecret,
   zoom,
+  siteUrl = "https://astro-shantiram.vercel.app",
 }: AppDeps) {
   const app = express();
+  // Customers' "manage your booking" links are signed with the same secret as admin sign-ins
+  const links = jwtSecret ? { siteUrl, secret: jwtSecret } : undefined;
 
   app.set("trust proxy", 1);
   app.use(helmet());
@@ -112,10 +118,11 @@ export function createApp({
   app.use("/api/services", servicesRouter({ db }));
   app.use("/api/admin/services", ...contentEditors, adminServicesRouter({ db, media }));
   const schedulers = [requireAuth(db, jwtSecret), requireRole("super_admin", "appointment_manager", "guru")];
-  app.use("/api/booking", bookingRouter({ db, mailer, notifyEmail, internalApiKey, now }));
-  app.use("/api/admin/appointments", ...schedulers, adminAppointmentsRouter({ db, mailer, now, zoom }));
+  app.use("/api/booking/manage", manageBookingRouter({ db, mailer, notifyEmail, internalApiKey, now, zoom, links }));
+  app.use("/api/booking", bookingRouter({ db, mailer, notifyEmail, internalApiKey, now, links }));
+  app.use("/api/admin/appointments", ...schedulers, adminAppointmentsRouter({ db, mailer, now, zoom, links }));
   app.use("/api/admin/schedule", ...schedulers, adminScheduleRouter({ db, now }));
-  app.use("/api/cron", cronRouter({ db, mailer, cronSecret, now }));
+  app.use("/api/cron", cronRouter({ db, mailer, cronSecret, now, links }));
   app.use("/api/admin/zoom", requireAuth(db, jwtSecret), requireRole("super_admin"), adminZoomRouter({ zoom }));
   app.use("/api/admin/email", requireAuth(db, jwtSecret), requireRole("super_admin"), adminEmailRouter({ mailer, notifyEmail }));
   app.use(

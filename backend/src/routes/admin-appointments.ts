@@ -4,9 +4,11 @@ import { z } from "zod";
 import type { Database } from "../db/client.js";
 import { type Appointment, appointments, blockedDates, bookingSettings, scheduleWindows } from "../db/schema.js";
 import { addDays, bookingSettingsSchema, centralClock, scheduleWindowsSchema, toMinutes } from "../services/booking.js";
-import { busyBetween, describeAppointment, loadSettings, loadWindows } from "../services/booking-store.js";
+import { type BookingLinks, customerMail, manageUrl } from "../services/booking-links.js";
+import { busyBetween, loadSettings, loadWindows } from "../services/booking-store.js";
 import type { Mailer } from "../services/mailer.js";
 import type { Zoom } from "../services/zoom.js";
+import { syncZoom } from "../services/zoom-sync.js";
 
 const idParam = z.uuid();
 const views = ["requests", "upcoming", "past", "cancelled"] as const;
@@ -40,56 +42,19 @@ export function adminAppointmentsRouter({
   mailer,
   now = () => new Date(),
   zoom,
+  links,
 }: {
   db: Database;
   mailer: Mailer;
   now?: () => Date;
   zoom?: Zoom;
+  links?: BookingLinks;
 }) {
   const router = Router();
 
-  /**
-   * Keeps the website-made Zoom meeting in step with the booking: makes one when a Zoom
-   * booking is confirmed without a link, moves it with the booking, and deletes it on cancel.
-   * Zoom trouble never blocks the booking change; the admin sees a note instead.
-   */
-  async function syncZoom(a: Appointment): Promise<{ appointment: Appointment; zoom?: string }> {
-    if (!zoom || a.mode !== "zoom") return { appointment: a };
-    const details = {
-      topic: `${a.serviceName} with Astro Shantiram (${a.reference})`,
-      date: a.date,
-      startTime: a.startTime,
-      durationMinutes: a.durationMinutes,
-      agenda: `Booking ${a.reference} for ${a.name}`,
-    };
-    const save = async (values: Partial<Appointment>) =>
-      (await db.update(appointments).set(values).where(eq(appointments.id, a.id)).returning())[0];
-    try {
-      if (a.status === "cancelled") {
-        if (!a.zoomMeetingId) return { appointment: a };
-        await zoom.deleteMeeting(a.zoomMeetingId);
-        return { appointment: await save({ zoomMeetingId: null, meetingLink: null }), zoom: "The Zoom meeting was deleted." };
-      }
-      if (a.status !== "confirmed" && a.status !== "rescheduled") return { appointment: a };
-      if (a.zoomMeetingId) {
-        await zoom.moveMeeting(a.zoomMeetingId, details);
-        return { appointment: a };
-      }
-      // A link the admin pasted themselves is left alone
-      if (a.meetingLink) return { appointment: a };
-      const meeting = await zoom.createMeeting(details);
-      return { appointment: await save({ zoomMeetingId: meeting.id, meetingLink: meeting.joinUrl }), zoom: "A Zoom meeting was created." };
-    } catch (err) {
-      console.error("Zoom update failed", a.reference, err);
-      const detail = err instanceof Error ? err.message : "Unknown error";
-      return { appointment: a, zoom: `Zoom problem: ${detail.slice(0, 300)}. You can paste a meeting link by hand below.` };
-    }
-  }
-
   async function tellCustomer(a: Appointment, subject: string, opening: string) {
-    await mailer
-      .send({ to: a.email, subject: `${subject} (${a.reference})`, text: `Namaste ${a.name},\n\n${opening}\n\n${describeAppointment(a)}\n\nAstro Shantiram` })
-      .catch((err) => console.error("Failed to email the customer", err));
+    const calendar = a.status === "confirmed" || a.status === "rescheduled";
+    await mailer.send(customerMail(links, a, { subject, opening, calendar })).catch((err) => console.error("Failed to email the customer", err));
   }
 
   router.get("/", async (req, res) => {
@@ -150,7 +115,8 @@ export function adminAppointmentsRouter({
       res.status(404).json({ error: "not_found" });
       return;
     }
-    res.json({ appointment: row });
+    // So the admin can send it to a customer who lost their email
+    res.json({ appointment: row, manageUrl: links ? manageUrl(links.siteUrl, links.secret, row) : null });
   });
 
   router.post("/:id/status", async (req, res) => {
@@ -169,7 +135,7 @@ export function adminAppointmentsRouter({
       res.status(404).json({ error: "not_found" });
       return;
     }
-    const synced = await syncZoom(row);
+    const synced = await syncZoom(db, zoom, row);
     row = synced.appointment;
     if (parsed.data.notify && parsed.data.status === "confirmed") {
       await tellCustomer(row, "Your booking is confirmed", "Your booking with Guruji is confirmed. We look forward to seeing you.");
@@ -212,7 +178,7 @@ export function adminAppointmentsRouter({
       .set({ date, startTime: time, status: "rescheduled", reminderSentAt: null, updatedAt: new Date() })
       .where(eq(appointments.id, existing.id))
       .returning();
-    const synced = await syncZoom(row);
+    const synced = await syncZoom(db, zoom, row);
     if (notify) await tellCustomer(synced.appointment, "Your booking has a new time", "Your booking has been moved to a new time. The details are below.");
     res.json({ appointment: synced.appointment, zoom: synced.zoom });
   });

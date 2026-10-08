@@ -4,7 +4,7 @@ import { Router } from "express";
 import type { Database } from "../db/client.js";
 import { appointments } from "../db/schema.js";
 import { addDays, centralClock, toTime } from "../services/booking.js";
-import { describeAppointment } from "../services/booking-store.js";
+import { type BookingLinks, customerMail } from "../services/booking-links.js";
 import type { Mailer } from "../services/mailer.js";
 
 const digest = (value: string) => createHash("sha256").update(value).digest();
@@ -18,11 +18,13 @@ export function cronRouter({
   mailer,
   cronSecret,
   now = () => new Date(),
+  links,
 }: {
   db: Database;
   mailer: Mailer;
   cronSecret?: string;
   now?: () => Date;
+  links?: BookingLinks;
 }) {
   const router = Router();
 
@@ -69,11 +71,12 @@ export function cronRouter({
       if (!claimed) continue;
       const when = a.date === tomorrow ? "tomorrow" : "today";
       try {
-        await mailer.send({
-          to: a.email,
-          subject: `Reminder: your booking is ${when} (${a.reference})`,
-          text: `Namaste ${a.name},\n\nThis is a reminder that your booking with Astro Shantiram is ${when}. The details are below.\n\n${describeAppointment(a)}\n\nIf you need to change the time, please reply to this email or call us.\n\nAstro Shantiram`,
-        });
+        await mailer.send(
+          customerMail(links, a, {
+            subject: `Reminder: your booking is ${when}`,
+            opening: `This is a reminder that your booking with Astro Shantiram is ${when}. The details are below.`,
+          }),
+        );
         sent++;
       } catch (err) {
         console.error("Failed to send a booking reminder", a.reference, err);

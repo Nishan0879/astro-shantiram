@@ -1,7 +1,13 @@
 import nodemailer from "nodemailer";
 import type { Env } from "../config/env.js";
 
-export type Mail = { to: string; subject: string; text: string; replyTo?: string };
+export type Mail = {
+  to: string;
+  subject: string;
+  text: string;
+  replyTo?: string;
+  attachments?: { filename: string; content: string; contentType: string }[];
+};
 export type Mailer = {
   send(mail: Mail): Promise<void>;
   /** False when SMTP is not set up, so emails are only logged */

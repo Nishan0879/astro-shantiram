@@ -27,6 +27,7 @@ const app: Express = createApp({
   media: cloudinary ? cloudinaryMedia(cloudinary, env.CLOUDINARY_API_BASE) : undefined,
   mediaProblem,
   cronSecret: env.CRON_SECRET,
+  siteUrl: env.SITE_URL,
   zoom:
     env.ZOOM_ACCOUNT_ID && env.ZOOM_CLIENT_ID && env.ZOOM_CLIENT_SECRET
       ? zoomClient({

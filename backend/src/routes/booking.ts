@@ -14,10 +14,11 @@ import {
   pujaDateOpen,
 } from "../services/booking.js";
 import { blockedBetween, busyBetween, describeAppointment, loadSettings, loadWindows } from "../services/booking-store.js";
+import { type BookingLinks, customerMail, manageKey } from "../services/booking-links.js";
 import type { Mailer } from "../services/mailer.js";
 import { pickTranslation } from "../services/translations.js";
 
-type Deps = { db: Database; mailer: Mailer; notifyEmail?: string; internalApiKey?: string; now?: () => Date };
+type Deps = { db: Database; mailer: Mailer; notifyEmail?: string; internalApiKey?: string; now?: () => Date; links?: BookingLinks };
 
 const availabilityQuery = z.object({
   service: z.string().trim().min(1).max(120),
@@ -26,7 +27,7 @@ const availabilityQuery = z.object({
 });
 
 /** Open times and new bookings for visitors. */
-export function bookingRouter({ db, mailer, notifyEmail, internalApiKey, now = () => new Date() }: Deps) {
+export function bookingRouter({ db, mailer, notifyEmail, internalApiKey, now = () => new Date(), links }: Deps) {
   const router = Router();
 
   async function bookableService(slug: string) {
@@ -135,11 +136,12 @@ export function bookingRouter({ db, mailer, notifyEmail, internalApiKey, now = (
     // The booking is saved, so a mail failure must not fail the request
     const details = describeAppointment(booked);
     const mails = [
-      mailer.send({
-        to: booked.email,
-        subject: `We received your ${kind === "puja" ? "puja request" : "booking"} (${booked.reference})`,
-        text: `Namaste ${booked.name},\n\nThank you. We received your ${kind === "puja" ? "puja request" : "booking request"} and will confirm it soon.\n\n${details}\n\nAstro Shantiram`,
-      }),
+      mailer.send(
+        customerMail(links, booked, {
+          subject: `We received your ${kind === "puja" ? "puja request" : "booking"}`,
+          opening: `Thank you. We received your ${kind === "puja" ? "puja request" : "booking request"} and will confirm it soon.`,
+        }),
+      ),
     ];
     if (notifyEmail) {
       mails.push(
@@ -157,7 +159,14 @@ export function bookingRouter({ db, mailer, notifyEmail, internalApiKey, now = (
       results.forEach((r) => r.status === "rejected" && console.error("Failed to send booking email", r.reason)),
     );
 
-    res.status(201).json({ reference: booked.reference, kind, date: booked.date, time: booked.startTime.slice(0, 5) });
+    res.status(201).json({
+      reference: booked.reference,
+      kind,
+      date: booked.date,
+      time: booked.startTime.slice(0, 5),
+      // Lets the thank-you page link to the manage page straight away
+      manageKey: links ? manageKey(links.secret, booked.reference) : null,
+    });
   });
 
   return router;
