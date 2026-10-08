@@ -117,6 +117,42 @@ export const eventTranslations = pgTable(
 
 export type Event = typeof events.$inferSelect;
 
+// Spiritual calendar: festivals, vrat days and special puja dates Guruji lists for the year
+export const festivalKinds = ["festival", "ekadashi", "purnima", "amavasya", "sankranti", "puja", "other"] as const;
+export type FestivalKind = (typeof festivalKinds)[number];
+
+export const festivals = pgTable(
+  "festivals",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    // US Central dates; a festival over several days has an end date
+    date: date("date").notNull(),
+    endDate: date("end_date"),
+    kind: varchar("kind", { length: 16 }).$type<FestivalKind>().notNull(),
+    status: varchar("status", { length: 16 }).$type<"draft" | "published">().notNull().default("published"),
+    // A service to offer a booking link for, like a Lakshmi puja at Tihar
+    serviceSlug: varchar("service_slug", { length: 120 }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("festivals_date_idx").on(t.date)],
+);
+
+export const festivalTranslations = pgTable(
+  "festival_translations",
+  {
+    festivalId: uuid("festival_id")
+      .notNull()
+      .references(() => festivals.id, { onDelete: "cascade" }),
+    locale: varchar("locale", { length: 8 }).$type<ContentLocale>().notNull(),
+    name: varchar("name", { length: 200 }).notNull(),
+    description: text("description"),
+  },
+  (t) => [primaryKey({ columns: [t.festivalId, t.locale] })],
+);
+
+export type Festival = typeof festivals.$inferSelect;
+
 export const galleryCategories = ["guruji", "temple", "puja", "events", "community", "spiritual", "travel"] as const;
 export type GalleryCategory = (typeof galleryCategories)[number];
 

@@ -5,6 +5,7 @@ import { Suspense, use } from "react";
 import VideoCard from "@/components/VideoCard";
 import ZodiacGrid from "@/components/ZodiacGrid";
 import { Link } from "@/i18n/navigation";
+import { daysBetween, type PublicFestival } from "@/lib/festivals";
 import type { PublicEdition } from "@/lib/horoscopes";
 import { publicJson } from "@/lib/public-api";
 import { serviceCategories, type ServiceSummary } from "@/lib/services";
@@ -58,6 +59,10 @@ export default function HomePage({ params }: PageProps<"/[locale]">) {
           </div>
         </div>
       </section>
+
+      <Suspense>
+        <UpcomingFestivals locale={locale} />
+      </Suspense>
 
       <Suspense>
         <TodaysHoroscope locale={locale} />
@@ -191,6 +196,50 @@ function FacebookUpdates() {
 }
 
 /** The sign picker, once Guruji has written a daily horoscope. */
+async function UpcomingFestivals({ locale }: { locale: string }) {
+  await connection();
+  let data: { today: string; festivals: PublicFestival[] } | null = null;
+  try {
+    data = await publicJson(`/api/festivals/upcoming?locale=${locale}&limit=3`);
+  } catch {
+    // The home page still works if the calendar cannot be loaded
+  }
+  if (!data?.festivals.length) return null;
+  return <FestivalCountdown today={data.today} festivals={data.festivals} locale={locale} />;
+}
+
+function FestivalCountdown({ today, festivals, locale }: { today: string; festivals: PublicFestival[]; locale: string }) {
+  const t = useTranslations("Festivals");
+  const dateFormat = new Intl.DateTimeFormat(locale === "en" ? "en-US" : locale, { weekday: "short", month: "long", day: "numeric", timeZone: "UTC" });
+  return (
+    <section className="mx-auto max-w-6xl px-4 py-16">
+      <h2 className="text-center font-serif text-3xl text-maroon">{t("upcomingTitle")}</h2>
+      <ul className="mt-8 grid gap-4 sm:grid-cols-3">
+        {festivals.map((f) => {
+          const days = daysBetween(today, f.date);
+          return (
+            <li key={f.id} className="rounded-xl border border-gold/30 bg-warm-white p-5 text-center">
+              <p className="font-serif text-4xl text-saffron-dark">{days > 0 ? days : "✦"}</p>
+              <p className="text-xs uppercase tracking-wide text-charcoal/60">
+                {days > 0 ? t("daysToGo", { count: days }) : days === 0 ? t("today") : t("underway")}
+              </p>
+              <p lang={f.locale} className="mt-3 font-serif text-xl text-maroon">
+                {f.name}
+              </p>
+              <p className="mt-1 text-sm text-charcoal/70">{dateFormat.format(new Date(`${f.date}T12:00:00Z`))}</p>
+            </li>
+          );
+        })}
+      </ul>
+      <div className="mt-8 text-center">
+        <Link href="/festivals" className="text-saffron hover:underline">
+          {t("fullCalendar")} →
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 async function TodaysHoroscope({ locale }: { locale: string }) {
   await connection();
   let edition: PublicEdition | null = null;

@@ -18,7 +18,8 @@
     "contact": "Contact",
     "book": "Book Consultation",
     "language": "Language",
-    "search": "Search"
+    "search": "Search",
+    "festivals": "Festivals"
   },
   "Home": {
     "verse": "ॐ असतो मा सद्गमय । तमसो मा ज्योतिर्गमय ।",
@@ -485,5 +486,34 @@
     "videos": "Pravachan",
     "books": "Books",
     "events": "Events"
+  },
+  "Festivals": {
+    "title": "Festival calendar",
+    "intro": "Festivals, Ekadashi and other vrat days, and special puja dates through the year, with Guruji's events.",
+    "next": "Coming up next",
+    "inDays": "{count, plural, one {tomorrow} other {in # days}}",
+    "today": "Today",
+    "underway": "Happening now",
+    "until": "Until {date}",
+    "central": "Central time",
+    "filter": "Show only",
+    "all": "All",
+    "kinds": {
+      "festival": "Festival",
+      "ekadashi": "Ekadashi",
+      "purnima": "Purnima",
+      "amavasya": "Amavasya",
+      "sankranti": "Sankranti",
+      "puja": "Special puja",
+      "other": "Other",
+      "event": "Guruji's event"
+    },
+    "empty": "Nothing listed for {year} yet.",
+    "failed": "The calendar could not be loaded. Please try again soon.",
+    "bookPuja": "Book this puja",
+    "note": "Dates follow Guruji's calendar for US Central time. Observance can differ by a day between traditions and places.",
+    "upcomingTitle": "Upcoming festivals",
+    "daysToGo": "{count, plural, one {day to go} other {days to go}}",
+    "fullCalendar": "See the full calendar"
   }
 }

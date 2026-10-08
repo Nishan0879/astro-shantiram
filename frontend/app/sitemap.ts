@@ -6,7 +6,7 @@ import { publicJson } from "@/lib/public-api";
 import type { ServiceSummary } from "@/lib/services";
 import { siteUrl } from "@/lib/site";
 
-const sections = ["", "/about", "/services", "/book", "/horoscope", "/articles", "/events", "/books", "/pravachan", "/gallery", "/contact"];
+const sections = ["", "/about", "/services", "/book", "/horoscope", "/articles", "/events", "/festivals", "/books", "/pravachan", "/gallery", "/contact"];
 
 /** One entry per page, listing the same page in every language. */
 const entry = (path: string): MetadataRoute.Sitemap[number] => ({

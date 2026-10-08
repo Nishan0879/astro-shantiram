@@ -11,6 +11,7 @@ import { adminZoomRouter } from "./routes/admin-zoom.js";
 import { adminEmailRouter } from "./routes/admin-email.js";
 import { adminBooksRouter } from "./routes/admin-books.js";
 import { adminEventsRouter } from "./routes/admin-events.js";
+import { adminFestivalsRouter } from "./routes/admin-festivals.js";
 import { adminGalleryRouter, adminUploadsRouter } from "./routes/admin-media.js";
 import { adminHoroscopesRouter } from "./routes/admin-horoscopes.js";
 import { adminMessagesRouter } from "./routes/admin-messages.js";
@@ -21,6 +22,7 @@ import { bookingRouter } from "./routes/booking.js";
 import { manageBookingRouter } from "./routes/manage-booking.js";
 import { booksRouter } from "./routes/books.js";
 import { eventsRouter } from "./routes/events.js";
+import { festivalsRouter } from "./routes/festivals.js";
 import { galleryRouter } from "./routes/gallery.js";
 import { horoscopesRouter } from "./routes/horoscopes.js";
 import { searchRouter } from "./routes/search.js";
@@ -106,10 +108,12 @@ export function createApp({
     requireRole("super_admin", "content_admin", "guru"),
     adminEventsRouter({ db }),
   );
+  app.use("/api/festivals", festivalsRouter({ db, today }));
   app.use("/api/gallery", galleryRouter({ db }));
   const contentEditors = [requireAuth(db, jwtSecret), requireRole("super_admin", "content_admin", "guru")];
   app.use("/api/admin/uploads", ...contentEditors, adminUploadsRouter({ media, mediaProblem }));
   app.use("/api/admin/gallery", ...contentEditors, adminGalleryRouter({ db, media }));
+  app.use("/api/admin/festivals", ...contentEditors, adminFestivalsRouter({ db, today }));
   app.use("/api/books", booksRouter({ db }));
   app.use("/api/admin/books", ...contentEditors, adminBooksRouter({ db, media }));
   app.use("/api/videos", videosRouter({ db }));
