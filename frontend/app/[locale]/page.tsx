@@ -2,6 +2,7 @@ import { useTranslations } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { connection } from "next/server";
 import { Suspense, use } from "react";
+import TestimonialCard from "@/components/TestimonialCard";
 import VideoCard from "@/components/VideoCard";
 import ZodiacGrid from "@/components/ZodiacGrid";
 import { Link } from "@/i18n/navigation";
@@ -9,6 +10,7 @@ import { daysBetween, type PublicFestival } from "@/lib/festivals";
 import type { PublicEdition } from "@/lib/horoscopes";
 import { publicJson } from "@/lib/public-api";
 import { serviceCategories, type ServiceSummary } from "@/lib/services";
+import type { TestimonialList } from "@/lib/testimonials";
 import { facebookFeedUrl, facebookPageUrl, youtubeChannelUrl } from "@/lib/site";
 import type { VideoList } from "@/lib/videos";
 
@@ -70,6 +72,10 @@ export default function HomePage({ params }: PageProps<"/[locale]">) {
 
       <Suspense>
         <LatestPravachan locale={locale} />
+      </Suspense>
+
+      <Suspense>
+        <WhatPeopleSay />
       </Suspense>
 
       <FacebookUpdates />
@@ -265,6 +271,42 @@ function HoroscopeSection() {
       <Link href="/horoscope" className="mt-6 inline-block text-saffron hover:underline">
         {h("title")} →
       </Link>
+    </section>
+  );
+}
+
+async function WhatPeopleSay() {
+  await connection();
+  let data: TestimonialList | null = null;
+  try {
+    data = await publicJson<TestimonialList>("/api/testimonials?limit=3");
+  } catch {
+    // The home page still works if the reviews cannot be loaded
+  }
+  if (!data?.testimonials.length) return null;
+  return <ReviewHighlights data={data} />;
+}
+
+function ReviewHighlights({ data }: { data: TestimonialList }) {
+  const t = useTranslations("Testimonials");
+  return (
+    <section className="bg-cream">
+      <div className="mx-auto max-w-6xl px-4 py-16">
+        <h2 className="text-center font-serif text-3xl text-maroon">{t("homeTitle")}</h2>
+        <div className="mt-10 grid gap-6 md:grid-cols-3">
+          {data.testimonials.map((r) => (
+            <TestimonialCard key={r.id} testimonial={r} />
+          ))}
+        </div>
+        <div className="mt-8 flex flex-wrap justify-center gap-6">
+          <Link href="/testimonials" className="text-saffron hover:underline">
+            {t("allReviews", { count: data.count })} →
+          </Link>
+          <Link href="/testimonials#share" className="text-saffron hover:underline">
+            {t("shareTitle")} →
+          </Link>
+        </div>
+      </div>
     </section>
   );
 }

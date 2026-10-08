@@ -346,7 +346,8 @@
   "Footer": {
     "rights": "All rights reserved.",
     "youtube": "YouTube",
-    "facebook": "Facebook"
+    "facebook": "Facebook",
+    "reviews": "Reviews"
   },
   "Booking": {
     "title": "Book a consultation or puja",
@@ -515,5 +516,37 @@
     "upcomingTitle": "Upcoming festivals",
     "daysToGo": "{count, plural, one {day to go} other {days to go}}",
     "fullCalendar": "See the full calendar"
+  },
+  "Testimonials": {
+    "title": "Reviews",
+    "intro": "What people say after a consultation or puja with Guruji.",
+    "homeTitle": "What People Say",
+    "allReviews": "Read all {count, plural, one {# review} other {# reviews}}",
+    "summary": "{average} out of 5 from {count, plural, one {# review} other {# reviews}}",
+    "stars": "{rating} out of 5 stars",
+    "none": "No reviews yet. Be the first to share your experience.",
+    "shareTitle": "Share your experience",
+    "shareText": "Your review will appear here after Guruji reads it.",
+    "rating": "Your rating",
+    "message": "Your review",
+    "name": "Your name",
+    "place": "City and state",
+    "placeExample": "Irving, TX",
+    "service": "Service",
+    "serviceExample": "Kundali reading",
+    "email": "Email",
+    "emailPrivate": "Not shown on the website.",
+    "optional": "optional",
+    "submit": "Send review",
+    "sending": "Sending…",
+    "thanks": "Thank you for your kind words. Your review will appear on the website after Guruji reads it.",
+    "error": "Please check the highlighted fields.",
+    "failed": "Sorry, your review could not be sent. Please try again later.",
+    "errors": {
+      "name": "Please enter your name.",
+      "email": "Please enter a valid email.",
+      "rating": "Please choose a rating.",
+      "message": "Please write at least a sentence."
+    }
   }
 }

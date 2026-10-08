@@ -18,7 +18,7 @@ export default function OverviewPage() {
 }
 
 async function Metrics() {
-  const [{ counts, total }, { articles }, { events }, bookings, visitors] = await Promise.all([
+  const [{ counts, total }, { articles }, { events }, bookings, visitors, reviews] = await Promise.all([
     adminJson<MessageList>("/api/admin/contact-messages"),
     adminJson<{ articles: { status: string }[] }>("/api/admin/articles"),
     adminJson<{ events: { status: string; isUpcoming: boolean }[] }>("/api/admin/events"),
@@ -29,6 +29,11 @@ async function Metrics() {
     }),
     // Only Guruji and the main admin see visitor numbers
     adminJson<{ totals: { visitors: number } }>("/api/admin/stats?days=7").catch((err) => {
+      unstable_rethrow(err);
+      return null;
+    }),
+    // Left out for accounts that do not edit content, and before the reviews table exists
+    adminJson<{ counts: { new: number } }>("/api/admin/testimonials?status=new").catch((err) => {
       unstable_rethrow(err);
       return null;
     }),
@@ -46,6 +51,9 @@ async function Metrics() {
         ]
       : []),
     ...(visitors ? [{ label: "Visits this week", value: visitors.totals.visitors, href: "/admin/visitors?days=7" }] : []),
+    ...(reviews
+      ? [{ label: "Reviews waiting", value: reviews.counts.new, href: "/admin/testimonials", highlight: reviews.counts.new > 0 }]
+      : []),
     { label: "New messages", value: counts.new, href: "/admin/messages?status=new", highlight: counts.new > 0 },
     { label: "Awaiting reply", value: counts.read, href: "/admin/messages?status=read" },
     { label: "All messages", value: total, href: "/admin/messages" },
