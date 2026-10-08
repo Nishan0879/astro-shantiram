@@ -515,3 +515,59 @@ export const testimonials = pgTable(
 );
 
 export type Testimonial = typeof testimonials.$inferSelect;
+
+export const subscriberStatuses = ["pending", "subscribed", "unsubscribed"] as const;
+export type SubscriberStatus = (typeof subscriberStatuses)[number];
+
+// People who signed up for email updates. "pending" until they click the link in the
+// confirmation email, so nobody can sign up someone else.
+export const newsletterSubscribers = pgTable("newsletter_subscribers", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  // Always lower case
+  email: varchar("email", { length: 254 }).notNull().unique(),
+  locale: varchar("locale", { length: 8 }).$type<ContentLocale>(),
+  status: varchar("status", { length: 16 }).$type<SubscriberStatus>().notNull().default("pending"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
+  unsubscribedAt: timestamp("unsubscribed_at", { withTimezone: true }),
+});
+
+export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
+
+export const issueStatuses = ["draft", "sending", "sent"] as const;
+export type IssueStatus = (typeof issueStatuses)[number];
+
+// An update written in the admin and emailed to every subscriber
+export const newsletterIssues = pgTable("newsletter_issues", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  subject: varchar("subject", { length: 200 }).notNull(),
+  body: text("body").notNull(),
+  status: varchar("status", { length: 16 }).$type<IssueStatus>().notNull().default("draft"),
+  recipientCount: integer("recipient_count").notNull().default(0),
+  sentCount: integer("sent_count").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  sentAt: timestamp("sent_at", { withTimezone: true }),
+});
+
+export type NewsletterIssue = typeof newsletterIssues.$inferSelect;
+
+export const deliveryStatuses = ["queued", "sending", "sent", "failed", "skipped"] as const;
+export type DeliveryStatus = (typeof deliveryStatuses)[number];
+
+// One row per person an update goes to, so sending can be done a few at a time and
+// picked up again where it stopped, without anyone getting it twice
+export const newsletterDeliveries = pgTable(
+  "newsletter_deliveries",
+  {
+    issueId: uuid("issue_id")
+      .notNull()
+      .references(() => newsletterIssues.id, { onDelete: "cascade" }),
+    subscriberId: uuid("subscriber_id")
+      .notNull()
+      .references(() => newsletterSubscribers.id, { onDelete: "cascade" }),
+    status: varchar("status", { length: 12 }).$type<DeliveryStatus>().notNull().default("queued"),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+  },
+  (t) => [primaryKey({ columns: [t.issueId, t.subscriberId] }), index("newsletter_deliveries_status_idx").on(t.issueId, t.status)],
+);

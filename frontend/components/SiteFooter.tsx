@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import NewsletterSignup from "./NewsletterSignup";
 import { facebookPageUrl, hasFacebookPage, youtubeChannelUrl } from "@/lib/site";
 
 export default function SiteFooter() {
@@ -9,6 +10,9 @@ export default function SiteFooter() {
   return (
     <footer className="bg-maroon-dark text-cream">
       <div className="mx-auto max-w-6xl px-4 py-8 text-center text-sm">
+        <div className="mb-8 border-b border-gold/20 pb-8 text-base">
+          <NewsletterSignup />
+        </div>
         <p className="font-serif text-lg">{site("name")}</p>
         <p className="mt-1 text-gold">{site("tagline")}</p>
         <p className="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2">

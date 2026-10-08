@@ -26,6 +26,7 @@ import { festivalsRouter } from "./routes/festivals.js";
 import { galleryRouter } from "./routes/gallery.js";
 import { horoscopesRouter } from "./routes/horoscopes.js";
 import { searchRouter } from "./routes/search.js";
+import { adminNewsletterRouter, newsletterRouter } from "./routes/newsletter.js";
 import { adminStatsRouter, statsRouter } from "./routes/stats.js";
 import { adminTestimonialsRouter, testimonialsRouter } from "./routes/testimonials.js";
 import { servicesRouter } from "./routes/services.js";
@@ -125,6 +126,8 @@ export function createApp({
   app.use("/api/search", searchRouter({ db }));
   app.use("/api/testimonials", testimonialsRouter({ db, mailer, notifyEmail, internalApiKey }));
   app.use("/api/admin/testimonials", ...contentEditors, adminTestimonialsRouter({ db }));
+  app.use("/api/newsletter", newsletterRouter({ db, mailer, internalApiKey, links }));
+  app.use("/api/admin/newsletter", ...contentEditors, adminNewsletterRouter({ db, mailer, links }));
   app.use("/api/stats", statsRouter({ db, internalApiKey, siteHosts: [new URL(siteUrl).hostname.replace(/^www\./, "")], now }));
   app.use("/api/admin/stats", requireAuth(db, jwtSecret), requireRole("super_admin", "guru"), adminStatsRouter({ db, now }));
   app.use("/api/services", servicesRouter({ db }));

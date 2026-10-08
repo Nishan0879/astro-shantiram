@@ -2,10 +2,11 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import { and, eq, gt, inArray, isNull, or } from "drizzle-orm";
 import { Router } from "express";
 import type { Database } from "../db/client.js";
-import { appointments } from "../db/schema.js";
+import { appointments, newsletterIssues } from "../db/schema.js";
 import { addDays, centralClock, toTime } from "../services/booking.js";
 import { type BookingLinks, customerMail } from "../services/booking-links.js";
 import type { Mailer } from "../services/mailer.js";
+import { sendBatch } from "../services/newsletter.js";
 
 const digest = (value: string) => createHash("sha256").update(value).digest();
 
@@ -86,6 +87,24 @@ export function cronRouter({
       }
     }
     res.json({ date: clock.date, sent, failed });
+  });
+
+  // Finishes any newsletter left part-sent, e.g. when the admin closed the page mid-way
+  router.get("/newsletter", async (_req, res) => {
+    if (mailer.configured === false || !links) {
+      res.status(503).json({ error: "email_not_configured" });
+      return;
+    }
+    const sending = await db.select({ id: newsletterIssues.id }).from(newsletterIssues).where(eq(newsletterIssues.status, "sending"));
+    const results = [];
+    // Up to a couple of hundred emails per run, so the job stays within its time limit
+    let budget = 20;
+    for (const { id } of sending) {
+      let result = await sendBatch(db, mailer, links, id);
+      while (result && result.issue.status === "sending" && --budget > 0) result = await sendBatch(db, mailer, links, id);
+      results.push({ id, status: result?.issue.status, remaining: result?.remaining });
+    }
+    res.json({ issues: results });
   });
 
   return router;

@@ -12,6 +12,7 @@ const nav = [
   { href: "/admin/events", label: "Events" },
   { href: "/admin/festivals", label: "Festivals" },
   { href: "/admin/testimonials", label: "Reviews" },
+  { href: "/admin/newsletter", label: "Newsletter" },
   { href: "/admin/gallery", label: "Gallery" },
   { href: "/admin/books", label: "Books" },
   { href: "/admin/videos", label: "Videos" },

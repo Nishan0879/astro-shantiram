@@ -548,5 +548,22 @@
       "rating": "Please choose a rating.",
       "message": "Please write at least a sentence."
     }
+  },
+  "Newsletter": {
+    "title": "Email updates",
+    "intro": "Get an email from Guruji now and then: upcoming festivals and their dates, horoscope highlights, events and new teachings. No more than a few a month, and you can stop any time.",
+    "signupTitle": "Get updates by email",
+    "signupText": "Festivals, horoscopes, events and teachings. A few emails a month.",
+    "emailPlaceholder": "Your email",
+    "submit": "Sign up",
+    "sending": "Sending…",
+    "checkEmail": "Almost done. Please open the email we just sent you and confirm.",
+    "invalid": "Please enter a valid email.",
+    "failed": "Sorry, something went wrong. Please try again later.",
+    "confirmed": "Thank you. You will now get email updates from Astro Shantiram.",
+    "badLink": "This link is not valid. Please use the newest link in your email.",
+    "leaveQuestion": "Stop sending email updates to {email}?",
+    "leaveButton": "Unsubscribe",
+    "left": "You have been unsubscribed and will not get more updates. You can sign up again any time."
   }
 }

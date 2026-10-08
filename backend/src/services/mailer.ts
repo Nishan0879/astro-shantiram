@@ -7,6 +7,8 @@ export type Mail = {
   text: string;
   replyTo?: string;
   attachments?: { filename: string; content: string; contentType: string }[];
+  // Extra email headers, such as List-Unsubscribe on newsletters
+  headers?: Record<string, string>;
 };
 export type Mailer = {
   send(mail: Mail): Promise<void>;
