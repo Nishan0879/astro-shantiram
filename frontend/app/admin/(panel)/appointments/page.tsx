@@ -22,9 +22,14 @@ export default function AppointmentsPage({ searchParams }: PageProps<"/admin/app
     <>
       <div className="mb-4 flex items-center justify-between gap-3">
         <h1 className="font-serif text-2xl text-maroon">Appointments</h1>
-        <Link href="/admin/schedule" className="text-sm text-saffron-dark underline">
-          Weekly hours and days off
-        </Link>
+        <div className="flex gap-3 text-sm">
+          <Link href="/admin/calendar" className="text-saffron-dark underline">
+            Calendar
+          </Link>
+          <Link href="/admin/schedule" className="text-saffron-dark underline">
+            Weekly hours and days off
+          </Link>
+        </div>
       </div>
       <Suspense fallback={<p className="text-charcoal/60">Loading…</p>}>
         <Appointments searchParams={searchParams} />
