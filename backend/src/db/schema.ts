@@ -419,6 +419,8 @@ export const appointments = pgTable(
     // Zoom or other meeting link, added by the admin
     meetingLink: varchar("meeting_link", { length: 500 }),
     adminNote: text("admin_note"),
+    // When the day-before reminder went out; cleared when the booking moves
+    reminderSentAt: timestamp("reminder_sent_at", { withTimezone: true }),
     locale: varchar("locale", { length: 8 }).$type<ContentLocale>(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

@@ -43,6 +43,7 @@ async function Details({ params }: Pick<PageProps<"/admin/appointments/[id]">, "
     ["Family names", a.familyNames],
     ["Their notes", a.notes],
     ["Booked", formatDate(a.createdAt)],
+    ["Reminder email", a.reminderSentAt ? `Sent ${formatDate(a.reminderSentAt)}` : null],
   ];
 
   return (

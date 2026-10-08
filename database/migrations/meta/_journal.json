@@ -71,6 +71,13 @@
       "when": 1791427792391,
       "tag": "0009_booking",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791431464880,
+      "tag": "0010_booking_reminders",
+      "breakpoints": true
     }
   ]
 }

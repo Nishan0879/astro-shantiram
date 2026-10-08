@@ -25,6 +25,7 @@ const app: Express = createApp({
       : undefined,
   media: cloudinary ? cloudinaryMedia(cloudinary, env.CLOUDINARY_API_BASE) : undefined,
   mediaProblem,
+  cronSecret: env.CRON_SECRET,
 });
 
 // Vercel imports the default export as a function; elsewhere we listen ourselves

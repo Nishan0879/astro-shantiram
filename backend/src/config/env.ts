@@ -28,6 +28,9 @@ const envSchema = z.object({
   // Where new contact messages are sent, and the From address used
   CONTACT_NOTIFY_EMAIL: z.string().optional(),
   MAIL_FROM: z.string().optional(),
+
+  // Vercel sends this with its scheduled calls; booking reminders stay off until it is set
+  CRON_SECRET: z.string().min(16).optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
