@@ -37,7 +37,7 @@ export default function SiteHeader() {
             <LanguageSwitcher />
           </Suspense>
           <Link
-            href="/contact"
+            href="/book"
             className="rounded-full bg-saffron px-4 py-2 font-medium text-white hover:bg-saffron-dark"
           >
             {t("book")}
