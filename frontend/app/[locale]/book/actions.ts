@@ -5,6 +5,7 @@ import { getLocale } from "next-intl/server";
 import type { AppointmentLanguage, Availability } from "@/lib/booking";
 import { publicJson } from "@/lib/public-api";
 import type { ServiceMode } from "@/lib/services";
+import { caughtBySpamTrap, type SpamTrapValues } from "@/lib/spam-trap";
 
 export type BookingValues = {
   service: string;
@@ -36,7 +37,8 @@ export async function loadAvailability(service: string, from?: string): Promise<
   }
 }
 
-export async function requestBooking(values: BookingValues): Promise<BookingResult> {
+export async function requestBooking(values: BookingValues, trap: SpamTrapValues): Promise<BookingResult> {
+  if (caughtBySpamTrap(trap)) return { ok: false, error: "failed" };
   const apiUrl = process.env.API_URL;
   if (!apiUrl) return { ok: false, error: "failed" };
   try {

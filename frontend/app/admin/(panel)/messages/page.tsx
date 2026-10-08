@@ -29,7 +29,8 @@ async function Messages({ searchParams }: Pick<PageProps<"/admin/messages">, "se
   const { messages, counts, total, pageSize } = await adminJson<MessageList>(
     `/api/admin/contact-messages?${query}`,
   );
-  const allCount = Object.values(counts).reduce((a, b) => a + b, 0);
+  // "All" leaves out spam, which has its own folder
+  const allCount = Object.entries(counts).reduce((sum, [s, n]) => (s === "spam" ? sum : sum + n), 0);
   const pages = Math.max(1, Math.ceil(total / pageSize));
 
   const href = (s: string | undefined, p = 1) => {

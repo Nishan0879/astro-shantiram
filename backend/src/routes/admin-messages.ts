@@ -1,4 +1,4 @@
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, ne } from "drizzle-orm";
 import { Router } from "express";
 import { z } from "zod";
 import type { Database } from "../db/client.js";
@@ -25,7 +25,8 @@ export function adminMessagesRouter({ db }: { db: Database }) {
       return;
     }
     const { status, page } = parsed.data;
-    const where = status ? eq(contactMessages.status, status) : undefined;
+    // "All" leaves out spam, which has its own folder
+    const where = status ? eq(contactMessages.status, status) : ne(contactMessages.status, "spam");
 
     const [messages, byStatus] = await Promise.all([
       db
@@ -43,7 +44,7 @@ export function adminMessagesRouter({ db }: { db: Database }) {
 
     const counts = Object.fromEntries(contactStatuses.map((s) => [s, 0])) as Record<string, number>;
     for (const row of byStatus) counts[row.status] = row.total;
-    const total = status ? counts[status] : byStatus.reduce((sum, r) => sum + r.total, 0);
+    const total = status ? counts[status] : byStatus.reduce((sum, r) => (r.status === "spam" ? sum : sum + r.total), 0);
 
     res.json({ messages, counts, total, page, pageSize: PAGE_SIZE });
   });

@@ -18,12 +18,17 @@ export default function OverviewPage() {
 }
 
 async function Metrics() {
-  const [{ counts, total }, { articles }, { events }, bookings] = await Promise.all([
+  const [{ counts, total }, { articles }, { events }, bookings, visitors] = await Promise.all([
     adminJson<MessageList>("/api/admin/contact-messages"),
     adminJson<{ articles: { status: string }[] }>("/api/admin/articles"),
     adminJson<{ events: { status: string; isUpcoming: boolean }[] }>("/api/admin/events"),
     // Left out for accounts that do not manage appointments, and before the booking tables exist
     adminJson<{ counts: { requests: number; today: number } }>("/api/admin/appointments?view=requests").catch((err) => {
+      unstable_rethrow(err);
+      return null;
+    }),
+    // Only Guruji and the main admin see visitor numbers
+    adminJson<{ totals: { visitors: number } }>("/api/admin/stats?days=7").catch((err) => {
       unstable_rethrow(err);
       return null;
     }),
@@ -40,6 +45,7 @@ async function Metrics() {
           { label: "Bookings today", value: bookings.counts.today, href: "/admin/appointments?view=upcoming" },
         ]
       : []),
+    ...(visitors ? [{ label: "Visits this week", value: visitors.totals.visitors, href: "/admin/visitors?days=7" }] : []),
     { label: "New messages", value: counts.new, href: "/admin/messages?status=new", highlight: counts.new > 0 },
     { label: "Awaiting reply", value: counts.read, href: "/admin/messages?status=read" },
     { label: "All messages", value: total, href: "/admin/messages" },

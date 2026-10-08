@@ -104,6 +104,31 @@ describe("POST /api/contact", () => {
   });
 });
 
+describe("spam", () => {
+  it("puts link-stuffed messages in the Spam folder without emailing Guruji", async () => {
+    const spammy = [
+      { message: "Visit https://a.example https://b.example and https://c.example now" },
+      { name: "Cheap SEO http://seo.example" },
+      { message: "Great site! [url=http://x.example]click[/url]" },
+      { subject: "Grow your traffic", message: "We sell backlinks and SEO, see https://seo.example" },
+    ];
+    for (const extra of spammy) expect((await request(app()).post("/api/contact").send({ ...valid, ...extra })).status).toBe(201);
+
+    const rows = await db.select().from(schema.contactMessages);
+    expect(rows.map((r) => r.status)).toEqual(["spam", "spam", "spam", "spam"]);
+    expect(sent).toHaveLength(0);
+  });
+
+  it("lets a real message with a link through", async () => {
+    await request(app())
+      .post("/api/contact")
+      .send({ ...valid, message: "My birth chart is at https://drive.example.com/chart, could you look at it?" });
+    const [row] = await db.select().from(schema.contactMessages);
+    expect(row.status).toBe("new");
+    expect(sent).toHaveLength(1);
+  });
+});
+
 describe("GET /api/health", () => {
   it("responds ok", async () => {
     const res = await request(app()).get("/api/health");
@@ -126,12 +151,10 @@ describe("contact rate limit", () => {
     expect((await post("203.0.113.2")).status).toBe(201);
   });
 
-  it("ignores a forwarded IP without the right key", async () => {
+  it("turns away posts that do not come through the website", async () => {
     const api = limited();
-    const post = (ip: string) =>
-      request(api).post("/api/contact").set("X-Internal-Key", "wrong").set("X-Visitor-IP", ip).send(valid);
-
-    for (let i = 0; i < 10; i++) expect((await post(`198.51.100.${i}`)).status).toBe(201);
-    expect((await post("198.51.100.99")).status).toBe(429);
+    expect((await request(api).post("/api/contact").send(valid)).status).toBe(403);
+    expect((await request(api).post("/api/contact").set("X-Internal-Key", "wrong").send(valid)).status).toBe(403);
+    expect(await db.select().from(schema.contactMessages)).toHaveLength(0);
   });
 });

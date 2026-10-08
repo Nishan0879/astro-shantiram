@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { Database } from "../db/client.js";
 import { appointments, services, serviceTranslations } from "../db/schema.js";
 import { visitorRateLimit } from "../middleware/rate-limit.js";
+import { websiteOnly } from "../middleware/website-only.js";
 import {
   addDays,
   bookingInputSchema,
@@ -68,7 +69,7 @@ export function bookingRouter({ db, mailer, notifyEmail, internalApiKey, now = (
     res.json({ kind, durationMinutes, modes: service.modes, earliest: earliest.date, lastDate, today: centralClock(at).date, days });
   });
 
-  router.post("/", visitorRateLimit({ internalApiKey, limit: 10 }), async (req, res) => {
+  router.post("/", websiteOnly(internalApiKey), visitorRateLimit({ internalApiKey, limit: 10 }), async (req, res) => {
     const parsed = bookingInputSchema.safeParse(req.body);
     if (!parsed.success) {
       const fieldErrors: Record<string, string> = {};

@@ -7,6 +7,7 @@ import type { ServiceSummary } from "@/lib/services";
 import { phoneInputProps, tenDigits } from "@/lib/phone";
 import { Link } from "@/i18n/navigation";
 import SlotPicker from "./SlotPicker";
+import SpamTrap, { spamTrapValues } from "@/components/SpamTrap";
 import { type BookingResult, type BookingValues, loadAvailability, requestBooking } from "./actions";
 
 const inputClass = "mt-1 w-full rounded border border-gold/40 bg-warm-white px-3 py-2 focus:border-saffron focus:outline-none";
@@ -56,9 +57,10 @@ export default function BookingFlow({ service, initial }: { service: ServiceSumm
     setResult(null);
   }
 
-  function submit() {
+  function submit(form: HTMLFormElement) {
+    const trap = spamTrapValues(form);
     startSending(async () => {
-      const res = await requestBooking(values);
+      const res = await requestBooking(values, trap);
       setResult(res);
       if (!res.ok && res.error === "taken") {
         setValues((v) => ({ ...v, time: isPuja ? v.time : "" }));
@@ -118,11 +120,12 @@ export default function BookingFlow({ service, initial }: { service: ServiceSumm
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            submit();
+            submit(e.currentTarget);
           }}
-          className="space-y-4"
+          className="relative space-y-4"
           aria-labelledby="your-details"
         >
+          <SpamTrap />
           <h2 id="your-details" className="font-serif text-2xl text-maroon">
             {t("stepDetails")}
           </h2>

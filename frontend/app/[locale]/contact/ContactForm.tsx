@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
+import SpamTrap from "@/components/SpamTrap";
 import { phoneInputProps, tenDigits } from "@/lib/phone";
 import { inquiryCategories } from "@/lib/services";
 import { submitContact, type ContactState } from "./actions";
@@ -31,7 +32,8 @@ export default function ContactForm({
     state.fieldErrors?.[field] ? "border-red-600" : "";
 
   return (
-    <form action={action} className="space-y-4">
+    <form action={action} className="relative space-y-4">
+      <SpamTrap />
       {state.status === "error" && <p className="text-red-700">{t("error")}</p>}
       {state.status === "failed" && <p className="text-red-700">{t("failed")}</p>}
       <div className="grid gap-4 sm:grid-cols-2">

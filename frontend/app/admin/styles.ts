@@ -12,4 +12,5 @@ export const statusStyles: Record<string, string> = {
   read: "bg-gold/20 text-charcoal",
   replied: "bg-green-100 text-green-900",
   archived: "bg-charcoal/10 text-charcoal/70",
+  spam: "bg-red-100 text-red-900",
 };
