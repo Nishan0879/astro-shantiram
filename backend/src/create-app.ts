@@ -10,12 +10,14 @@ import { adminEventsRouter } from "./routes/admin-events.js";
 import { adminGalleryRouter, adminUploadsRouter } from "./routes/admin-media.js";
 import { adminHoroscopesRouter } from "./routes/admin-horoscopes.js";
 import { adminMessagesRouter } from "./routes/admin-messages.js";
+import { adminServicesRouter } from "./routes/admin-services.js";
 import { adminVideosRouter } from "./routes/admin-videos.js";
 import { articlesRouter } from "./routes/articles.js";
 import { booksRouter } from "./routes/books.js";
 import { eventsRouter } from "./routes/events.js";
 import { galleryRouter } from "./routes/gallery.js";
 import { horoscopesRouter } from "./routes/horoscopes.js";
+import { servicesRouter } from "./routes/services.js";
 import { videosRouter } from "./routes/videos.js";
 import { authRouter, type BootstrapAdmin } from "./routes/auth.js";
 import { contactRouter } from "./routes/contact.js";
@@ -92,6 +94,8 @@ export function createApp({
   app.use("/api/admin/videos", ...contentEditors, adminVideosRouter({ db, fetchImpl: youtubeFetch }));
   app.use("/api/horoscopes", horoscopesRouter({ db, today }));
   app.use("/api/admin/horoscopes", ...contentEditors, adminHoroscopesRouter({ db }));
+  app.use("/api/services", servicesRouter({ db }));
+  app.use("/api/admin/services", ...contentEditors, adminServicesRouter({ db, media }));
   app.use(
     "/api/admin/contact-messages",
     requireAuth(db, jwtSecret),

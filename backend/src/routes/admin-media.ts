@@ -5,7 +5,7 @@ import type { Database } from "../db/client.js";
 import { contentLocales, galleryCategories, galleryItems } from "../db/schema.js";
 import type { Media } from "../services/media.js";
 
-const folders = ["gallery", "articles", "books"] as const;
+const folders = ["gallery", "articles", "books", "services"] as const;
 const idParam = z.uuid();
 
 const captionsSchema = z.partialRecord(z.enum(contentLocales), z.string().trim().max(300)).transform((c) =>

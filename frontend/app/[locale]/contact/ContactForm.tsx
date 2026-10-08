@@ -8,7 +8,13 @@ import { submitContact, type ContactState } from "./actions";
 const inputClass =
   "mt-1 w-full rounded border border-gold/40 bg-warm-white px-3 py-2 focus:border-saffron focus:outline-none";
 
-export default function ContactForm() {
+export default function ContactForm({
+  category = "general",
+  subject = "",
+}: {
+  category?: (typeof inquiryCategories)[number];
+  subject?: string;
+}) {
   const t = useTranslations("Contact");
   const [state, action, pending] = useActionState<ContactState, FormData>(
     submitContact,
@@ -41,7 +47,7 @@ export default function ContactForm() {
         </label>
         <label className="block">
           {t("category")}
-          <select name="category" className={inputClass} defaultValue="general">
+          <select name="category" className={inputClass} defaultValue={category}>
             {inquiryCategories.map((c) => (
               <option key={c} value={c}>
                 {t(`categories.${c}`)}
@@ -52,7 +58,7 @@ export default function ContactForm() {
       </div>
       <label className="block">
         {t("subject")}
-        <input name="subject" required className={`${inputClass} ${invalid("subject")}`} />
+        <input name="subject" required defaultValue={subject} className={`${inputClass} ${invalid("subject")}`} />
       </label>
       <label className="block">
         {t("message")}

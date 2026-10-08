@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { cloudinaryImage } from "@/lib/media";
+import { cloudinaryImage, type UploadFolder } from "@/lib/media";
 import { uploadPhoto } from "../../upload";
 import { secondaryButtonClass } from "../../styles";
 
@@ -12,11 +12,13 @@ export default function CoverPhoto({
   onChange,
   folder = "articles",
   hint,
+  label = "Cover photo",
 }: {
   url: string;
   error?: string;
   onChange: (url: string) => void;
-  folder?: "articles" | "books";
+  folder?: Exclude<UploadFolder, "gallery">;
+  label?: string;
   hint?: string;
 }) {
   const [uploading, setUploading] = useState(false);
@@ -39,19 +41,19 @@ export default function CoverPhoto({
 
   return (
     <div className="text-sm">
-      <p>Cover photo (optional)</p>
+      <p>{label} (optional)</p>
       {hint && <p className="text-xs text-charcoal/60">{hint}</p>}
       {url ? (
         <div className="mt-2 flex flex-wrap items-end gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element -- Cloudinary already resizes it */}
-          <img src={cloudinaryImage(url, "c_fill,w_480,h_270")} alt="Cover photo" className="w-60 rounded-lg border border-gold/30" />
+          <img src={cloudinaryImage(url, "c_fill,w_480,h_270")} alt={label} className="w-60 rounded-lg border border-gold/30" />
           <button type="button" onClick={() => onChange("")} className={secondaryButtonClass}>
             Remove photo
           </button>
         </div>
       ) : null}
       <label className={`${secondaryButtonClass} mt-2 inline-block cursor-pointer`}>
-        {uploading ? "Uploading…" : url ? "Choose a different photo" : "Add a cover photo"}
+        {uploading ? "Uploading…" : url ? "Choose a different photo" : "Add a photo"}
         <input
           type="file"
           accept="image/*"
