@@ -404,7 +404,8 @@
       "taken": "Sorry, that time was just taken. Please choose another.",
       "closed": "This service is not taking requests right now.",
       "failed": "Something went wrong. Please try again, or contact us."
-    }
+    },
+    "manage": "Add to calendar, move or cancel"
   },
   "NotFound": {
     "title": "Page not found",
@@ -415,5 +416,57 @@
     "title": "Something went wrong",
     "text": "This page didn't load. Please try again in a moment.",
     "retry": "Try again"
+  },
+  "ManageBooking": {
+    "title": "Your booking",
+    "invalidTitle": "We couldn't find this booking",
+    "invalidText": "The link may be incomplete. Please open it again from your email, or contact us and quote your reference.",
+    "contact": "Contact us",
+    "reference": "Reference",
+    "status": {
+      "requested": "Waiting for Guruji to confirm",
+      "confirmed": "Confirmed",
+      "rescheduled": "Confirmed",
+      "cancelled": "Cancelled",
+      "completed": "Completed",
+      "no_show": "Missed"
+    },
+    "when": "When",
+    "whenPuja": "Preferred time",
+    "central": "US Central time",
+    "length": "Length",
+    "minutes": "About {count} minutes",
+    "how": "How",
+    "address": "Address",
+    "join": "Join the Zoom meeting",
+    "addToCalendar": "Add to your calendar",
+    "calendarFile": "Apple, Outlook or phone calendar",
+    "googleCalendar": "Google Calendar",
+    "changeTitle": "Need to change it?",
+    "move": "Choose a new time",
+    "moveNote": "Your current time stays booked until you confirm a new one.",
+    "moveNotePuja": "Choose a new preferred day and time. Guruji will confirm them with you.",
+    "moveDateTitle": "New day",
+    "moveTimeTitle": "New time",
+    "moveTimeTitlePuja": "New preferred time",
+    "moveConfirm": "Move to {when}",
+    "moving": "Moving…",
+    "keepTime": "Keep my current time",
+    "cancel": "Cancel this booking",
+    "cancelAsk": "Cancel your booking for {when}?",
+    "cancelYes": "Yes, cancel it",
+    "cancelNo": "No, keep it",
+    "cancelling": "Cancelling…",
+    "movedDone": "Done. Your booking is now on {when}. We sent the details to your email.",
+    "movedDoneRequest": "Thank you. We sent your new time to Guruji, who will confirm it by email or phone.",
+    "cancelledDone": "Your booking is cancelled. We sent a note to your email.",
+    "tooLate": "It is too close to your booking to change it online. Please call or email us.",
+    "bookAgain": "Book a new time",
+    "problems": {
+      "taken": "Sorry, that time was just taken. Please choose another.",
+      "too_late": "It is too close to your booking to change it online. Please call or email us.",
+      "failed": "Something went wrong. Please try again, or contact us.",
+      "noTimes": "We could not load the open times. Please try again, or contact us."
+    }
   }
 }
