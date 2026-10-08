@@ -32,6 +32,13 @@ export default function SiteHeader() {
               {t(item.key)}
             </Link>
           ))}
+          <Link href="/search" className="inline-flex items-center gap-1 hover:text-saffron">
+            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+              <circle cx="8.5" cy="8.5" r="5.5" />
+              <path d="m13 13 4.5 4.5" strokeLinecap="round" />
+            </svg>
+            {t("search")}
+          </Link>
           {/* Pages with unknown paths (e.g. an article) read the path at request time */}
           <Suspense fallback={<span className="w-24" />}>
             <LanguageSwitcher />

@@ -17,7 +17,8 @@
     "horoscope": "Horoscope",
     "contact": "Contact",
     "book": "Book Consultation",
-    "language": "Language"
+    "language": "Language",
+    "search": "Search"
   },
   "Home": {
     "verse": "ॐ असतो मा सद्गमय । तमसो मा ज्योतिर्गमय ।",
@@ -468,5 +469,21 @@
       "failed": "Something went wrong. Please try again, or contact us.",
       "noTimes": "We could not load the open times. Please try again, or contact us."
     }
+  },
+  "Search": {
+    "title": "Search",
+    "placeholder": "Articles, pujas, books, videos…",
+    "button": "Search",
+    "hint": "Search everything on the site in English, Nepali or Sanskrit: articles, services and pujas, books, Pravachan videos, events and horoscope signs.",
+    "tooShort": "Type at least two letters.",
+    "failed": "Search is not working right now. Please try again soon.",
+    "none": "Nothing found for “{q}”. Try another word, or a spelling in Nepali or English.",
+    "count": "{count, plural, one {# result} other {# results}} for “{q}”",
+    "horoscope": "Horoscope",
+    "services": "Services and pujas",
+    "articles": "Articles",
+    "videos": "Pravachan",
+    "books": "Books",
+    "events": "Events"
   }
 }
