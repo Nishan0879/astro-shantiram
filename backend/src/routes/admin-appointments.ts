@@ -1,9 +1,9 @@
-import { and, asc, count, desc, eq, gte, inArray, lt, ne, sql } from "drizzle-orm";
+import { and, asc, between, count, desc, eq, gte, inArray, lt, ne, sql } from "drizzle-orm";
 import { Router } from "express";
 import { z } from "zod";
 import type { Database } from "../db/client.js";
 import { type Appointment, appointments, blockedDates, bookingSettings, scheduleWindows } from "../db/schema.js";
-import { bookingSettingsSchema, centralClock, scheduleWindowsSchema, toMinutes } from "../services/booking.js";
+import { addDays, bookingSettingsSchema, centralClock, scheduleWindowsSchema, toMinutes } from "../services/booking.js";
 import { busyBetween, describeAppointment, loadSettings, loadWindows } from "../services/booking-store.js";
 import type { Mailer } from "../services/mailer.js";
 import type { Zoom } from "../services/zoom.js";
@@ -116,6 +116,31 @@ export function adminAppointmentsRouter({
         .where(and(eq(appointments.date, today), inArray(appointments.status, ["requested", "confirmed", "rescheduled"]))),
     ]);
     res.json({ view, today, appointments: rows, counts: { requests: requests.n, today: todayCount.n } });
+  });
+
+  // Bookings, days off and weekly hours for a stretch of days, for the calendar
+  router.get("/calendar", async (req, res) => {
+    const today = centralClock(now()).date;
+    const from = z.iso.date().catch(today).parse(req.query.from);
+    const days = z.coerce.number().int().min(1).max(42).catch(7).parse(req.query.days);
+    const to = addDays(from, days - 1);
+    const [rows, blocked, windows] = await Promise.all([
+      db
+        .select()
+        .from(appointments)
+        .where(and(between(appointments.date, from, to), ne(appointments.status, "cancelled")))
+        .orderBy(asc(appointments.date), asc(appointments.startTime)),
+      db.select().from(blockedDates).where(between(blockedDates.date, from, to)).orderBy(asc(blockedDates.date)),
+      loadWindows(db),
+    ]);
+    res.json({
+      from,
+      to,
+      today,
+      appointments: rows,
+      blocked,
+      windows: windows.map((w) => ({ ...w, startTime: w.startTime.slice(0, 5), endTime: w.endTime.slice(0, 5) })),
+    });
   });
 
   router.get("/:id", async (req, res) => {

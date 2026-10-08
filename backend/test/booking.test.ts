@@ -222,3 +222,20 @@ describe("admin", () => {
     expect((await request(api()).get("/api/admin/schedule")).status).toBe(401);
   });
 });
+
+describe("calendar", () => {
+  it("lists a stretch of days with bookings, days off and weekly hours", async () => {
+    await book({ service: "kundali", date: "2026-10-13", time: "18:00", mode: "phone" });
+    const cancelled = await book({ service: "kundali", date: "2026-10-15", time: "17:00", mode: "phone" });
+    await db.update(schema.appointments).set({ status: "cancelled" }).where(eq(schema.appointments.reference, cancelled.body.reference));
+    await db.insert(schema.blockedDates).values({ date: "2026-10-16", reason: "Dashain" });
+    await book({ service: "kundali", date: "2026-10-19", time: "17:00", mode: "phone" });
+
+    const res = await as(request(api()).get("/api/admin/appointments/calendar?from=2026-10-12&days=7"));
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ from: "2026-10-12", to: "2026-10-18", today: "2026-10-12" });
+    expect(res.body.appointments.map((a: { date: string }) => a.date)).toEqual(["2026-10-13"]);
+    expect(res.body.blocked).toEqual([{ date: "2026-10-16", reason: "Dashain" }]);
+    expect(res.body.windows).toContainEqual({ weekday: 1, startTime: "17:00", endTime: "20:00" });
+  });
+});
