@@ -7,6 +7,7 @@ import { errorHandler, notFound } from "./middleware/errors.js";
 import { adminAppointmentsRouter, adminScheduleRouter } from "./routes/admin-appointments.js";
 import { adminArticlesRouter } from "./routes/admin-articles.js";
 import { cronRouter } from "./routes/cron.js";
+import { adminZoomRouter } from "./routes/admin-zoom.js";
 import { adminEmailRouter } from "./routes/admin-email.js";
 import { adminBooksRouter } from "./routes/admin-books.js";
 import { adminEventsRouter } from "./routes/admin-events.js";
@@ -27,6 +28,7 @@ import { authRouter, type BootstrapAdmin } from "./routes/auth.js";
 import { contactRouter } from "./routes/contact.js";
 import type { Mailer } from "./services/mailer.js";
 import type { Media } from "./services/media.js";
+import type { Zoom } from "./services/zoom.js";
 
 // Vercel's builder type-checks files as CommonJS, where helmet's default import
 // is typed as the module object. At runtime it is the middleware either way.
@@ -51,6 +53,8 @@ export type AppDeps = {
   now?: () => Date;
   /** Vercel Cron's shared secret; scheduled jobs stay off without it */
   cronSecret?: string;
+  /** Makes Zoom meetings for Zoom bookings; off when Zoom is not set up */
+  zoom?: Zoom;
 };
 
 export function createApp({
@@ -67,6 +71,7 @@ export function createApp({
   today,
   now,
   cronSecret,
+  zoom,
 }: AppDeps) {
   const app = express();
 
@@ -108,9 +113,10 @@ export function createApp({
   app.use("/api/admin/services", ...contentEditors, adminServicesRouter({ db, media }));
   const schedulers = [requireAuth(db, jwtSecret), requireRole("super_admin", "appointment_manager", "guru")];
   app.use("/api/booking", bookingRouter({ db, mailer, notifyEmail, internalApiKey, now }));
-  app.use("/api/admin/appointments", ...schedulers, adminAppointmentsRouter({ db, mailer, now }));
+  app.use("/api/admin/appointments", ...schedulers, adminAppointmentsRouter({ db, mailer, now, zoom }));
   app.use("/api/admin/schedule", ...schedulers, adminScheduleRouter({ db, now }));
   app.use("/api/cron", cronRouter({ db, mailer, cronSecret, now }));
+  app.use("/api/admin/zoom", requireAuth(db, jwtSecret), requireRole("super_admin"), adminZoomRouter({ zoom }));
   app.use("/api/admin/email", requireAuth(db, jwtSecret), requireRole("super_admin"), adminEmailRouter({ mailer, notifyEmail }));
   app.use(
     "/api/admin/contact-messages",

@@ -3,6 +3,7 @@ import { createApp } from "./create-app.js";
 import { loadEnv } from "./config/env.js";
 import { createDb } from "./db/client.js";
 import { createMailer } from "./services/mailer.js";
+import { zoomClient } from "./services/zoom.js";
 import { cloudinaryMedia, describeCloudinaryProblem, parseCloudinaryUrl } from "./services/media.js";
 
 const env = loadEnv();
@@ -26,6 +27,15 @@ const app: Express = createApp({
   media: cloudinary ? cloudinaryMedia(cloudinary, env.CLOUDINARY_API_BASE) : undefined,
   mediaProblem,
   cronSecret: env.CRON_SECRET,
+  zoom:
+    env.ZOOM_ACCOUNT_ID && env.ZOOM_CLIENT_ID && env.ZOOM_CLIENT_SECRET
+      ? zoomClient({
+          accountId: env.ZOOM_ACCOUNT_ID,
+          clientId: env.ZOOM_CLIENT_ID,
+          clientSecret: env.ZOOM_CLIENT_SECRET,
+          host: env.ZOOM_HOST_EMAIL,
+        })
+      : undefined,
 });
 
 // Vercel imports the default export as a function; elsewhere we listen ourselves

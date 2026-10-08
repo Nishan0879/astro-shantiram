@@ -78,6 +78,13 @@
       "when": 1791431464880,
       "tag": "0010_booking_reminders",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1791433871680,
+      "tag": "0011_zoom_meetings",
+      "breakpoints": true
     }
   ]
 }

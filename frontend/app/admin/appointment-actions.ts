@@ -3,7 +3,7 @@
 import { refresh } from "next/cache";
 import { adminFetch } from "@/lib/admin-api";
 
-export type ActionResult = { ok?: boolean; error?: string; fieldErrors?: Record<string, string> };
+export type ActionResult = { ok?: boolean; error?: string; fieldErrors?: Record<string, string>; notice?: string };
 
 async function send(path: string, method: string, body: unknown, what: string): Promise<ActionResult> {
   const res = await adminFetch(path, { method, body: JSON.stringify(body) });
@@ -16,8 +16,10 @@ async function send(path: string, method: string, body: unknown, what: string): 
     console.error(`Failed to ${what}`, res.status, await res.text());
     return { error: "Something went wrong. Please try again." };
   }
+  // What happened with the booking's Zoom meeting, if anything
+  const { zoom } = (await res.json().catch(() => ({}))) as { zoom?: string };
   refresh();
-  return { ok: true };
+  return { ok: true, notice: zoom };
 }
 
 const appointmentPath = (id: string) => `/api/admin/appointments/${encodeURIComponent(id)}`;

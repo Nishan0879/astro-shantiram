@@ -418,6 +418,8 @@ export const appointments = pgTable(
     notes: text("notes"),
     // Zoom or other meeting link, added by the admin
     meetingLink: varchar("meeting_link", { length: 500 }),
+    // Set when the website made the Zoom meeting itself, so it can move or delete it
+    zoomMeetingId: varchar("zoom_meeting_id", { length: 32 }),
     adminNote: text("admin_note"),
     // When the day-before reminder went out; cleared when the booking moves
     reminderSentAt: timestamp("reminder_sent_at", { withTimezone: true }),
