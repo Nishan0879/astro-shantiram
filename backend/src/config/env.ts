@@ -36,6 +36,9 @@ const envSchema = z.object({
   // Email of the Zoom user who hosts the meetings; defaults to the app's owner
   ZOOM_HOST_EMAIL: z.string().optional(),
 
+  // The public website's address, for "manage your booking" links in emails
+  SITE_URL: z.url().optional(),
+
   // Vercel sends this with its scheduled calls; booking reminders stay off until it is set
   CRON_SECRET: z.string().min(16).optional(),
 });

@@ -22,7 +22,7 @@ export type BookingValues = {
 };
 
 export type BookingResult =
-  | { ok: true; reference: string; date: string; time: string }
+  | { ok: true; reference: string; date: string; time: string; manageKey: string | null }
   | { ok: false; error: "fix" | "taken" | "closed" | "failed"; fieldErrors?: Record<string, string> };
 
 /** Open days and times for five weeks, from `from` or the first day that can be booked. */
@@ -62,7 +62,7 @@ export async function requestBooking(values: BookingValues): Promise<BookingResu
       console.error("Booking API responded", res.status, await res.text());
       return { ok: false, error: "failed" };
     }
-    return { ok: true, ...((await res.json()) as { reference: string; date: string; time: string }) };
+    return { ok: true, ...((await res.json()) as { reference: string; date: string; time: string; manageKey: string | null }) };
   } catch (err) {
     console.error("Booking API unreachable", err);
     return { ok: false, error: "failed" };

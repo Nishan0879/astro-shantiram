@@ -30,7 +30,7 @@ async function Details({ params }: Pick<PageProps<"/admin/appointments/[id]">, "
   const res = await adminFetch(`/api/admin/appointments/${encodeURIComponent(id)}`);
   if (res.status === 404) notFound();
   if (!res.ok) throw new Error(`Loading appointment failed: ${res.status}`);
-  const { appointment: a } = (await res.json()) as { appointment: Appointment };
+  const { appointment: a, manageUrl } = (await res.json()) as { appointment: Appointment; manageUrl: string | null };
 
   const rows: [string, string | null][] = [
     ["Kind", a.kind === "puja" ? "Puja request (the time is their preference)" : "Consultation"],
@@ -72,6 +72,14 @@ async function Details({ params }: Pick<PageProps<"/admin/appointments/[id]">, "
                 {a.email}
               </a>
             </p>
+            {manageUrl && (
+              <p className="mt-3 text-xs text-charcoal/70">
+                Their link to move or cancel it (it is in their emails):{" "}
+                <a href={manageUrl} className="break-all text-saffron-dark underline">
+                  {manageUrl}
+                </a>
+              </p>
+            )}
           </section>
           <dl className="space-y-3 rounded-xl border border-gold/30 bg-warm-white p-5 text-sm">
             {rows

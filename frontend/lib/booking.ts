@@ -55,3 +55,36 @@ export const addDays = (iso: string, days: number) => {
   d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
 };
+
+/** A booking as its customer sees it on the manage page. */
+export type CustomerBooking = {
+  reference: string;
+  serviceName: string;
+  kind: "consultation" | "puja";
+  date: string;
+  time: string;
+  durationMinutes: number;
+  mode: ServiceMode;
+  language: AppointmentLanguage;
+  status: AppointmentStatus;
+  name: string;
+  address: string | null;
+  meetingLink: string | null;
+  canChange: boolean;
+  /** Real start and end moments, for calendar links */
+  start: string;
+  end: string;
+};
+
+/** A Google Calendar "add event" link for the booking. */
+export function googleCalendarUrl(b: Pick<CustomerBooking, "serviceName" | "start" | "end" | "meetingLink" | "address" | "reference">, manageUrl: string) {
+  const stamp = (iso: string) => iso.replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const query = new URLSearchParams({
+    action: "TEMPLATE",
+    text: `${b.serviceName} with Astro Shantiram`,
+    dates: `${stamp(b.start)}/${stamp(b.end)}`,
+    details: [`Reference: ${b.reference}`, b.meetingLink && `Join: ${b.meetingLink}`, `Change or cancel: ${manageUrl}`].filter(Boolean).join("\n"),
+    ...(b.meetingLink ? { location: b.meetingLink } : b.address ? { location: b.address } : {}),
+  });
+  return `https://calendar.google.com/calendar/render?${query}`;
+}

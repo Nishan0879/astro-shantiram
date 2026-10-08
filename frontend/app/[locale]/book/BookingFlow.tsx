@@ -2,9 +2,11 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
-import { addDays, appointmentLanguages, type AppointmentLanguage, type Availability, wallClock } from "@/lib/booking";
+import { appointmentLanguages, type AppointmentLanguage, type Availability, wallClock } from "@/lib/booking";
 import type { ServiceSummary } from "@/lib/services";
 import { phoneInputProps, tenDigits } from "@/lib/phone";
+import { Link } from "@/i18n/navigation";
+import SlotPicker from "./SlotPicker";
 import { type BookingResult, type BookingValues, loadAvailability, requestBooking } from "./actions";
 
 const inputClass = "mt-1 w-full rounded border border-gold/40 bg-warm-white px-3 py-2 focus:border-saffron focus:outline-none";
@@ -34,15 +36,11 @@ export default function BookingFlow({ service, initial }: { service: ServiceSumm
   const [sending, startSending] = useTransition();
 
   const isPuja = availability.kind === "puja";
-  const day = availability.days.find((d) => d.date === values.date);
   const set = <K extends keyof BookingValues>(key: K, value: BookingValues[K]) => {
     setValues((v) => ({ ...v, [key]: value }));
     setResult((r) => (r && !r.ok && r.error !== "fix" ? null : r));
   };
 
-  const dayFormat = new Intl.DateTimeFormat(locale, { day: "numeric", timeZone: "UTC" });
-  const weekdayFormat = new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" });
-  const monthFormat = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" });
   const timeFormat = new Intl.DateTimeFormat(locale === "en" ? "en-US" : locale, { hour: "numeric", minute: "2-digit", timeZone: "UTC" });
   const longDate = new Intl.DateTimeFormat(locale === "en" ? "en-US" : locale, { dateStyle: "full", timeZone: "UTC" });
 
@@ -84,115 +82,37 @@ export default function BookingFlow({ service, initial }: { service: ServiceSumm
           {t("reference")} <strong className="font-mono tracking-wider">{result.reference}</strong>
         </p>
         <p className="mt-2 text-sm text-charcoal/70">{t("doneEmail", { email: values.email })}</p>
+        {result.manageKey && (
+          <Link
+            href={`/book/manage?${new URLSearchParams({ ref: result.reference, key: result.manageKey })}`}
+            className="mt-5 inline-block rounded-full border border-saffron/60 bg-warm-white px-5 py-2 text-sm hover:bg-saffron/10"
+          >
+            {t("manage")}
+          </Link>
+        )}
       </div>
     );
   }
 
-  const firstWeekday = wallClock(availability.days[0].date).getUTCDay();
   const fieldErrors = result && !result.ok ? (result.fieldErrors ?? {}) : {};
   const invalid = (f: string) => (fieldErrors[f] ? "border-red-600" : "");
   const errorText = (f: Field) =>
     fieldErrors[f] ? <span className="mt-1 block text-sm text-red-700">{t(`errors.${f}`)}</span> : null;
-  const canGoBack = availability.days[0].date > availability.earliest;
-  const lastShown = availability.days.at(-1)!.date;
 
   return (
     <div className="mt-8 space-y-10">
-      <section aria-labelledby="pick-date">
-        <h2 id="pick-date" className="font-serif text-2xl text-maroon">
-          {t("stepDate")}
-        </h2>
-        {isPuja && <p className="mt-2 text-sm text-charcoal/80">{t("pujaNote")}</p>}
-        <p className="mt-3 font-medium">
-          {monthFormat.format(wallClock(availability.days[0].date))}
-          {monthFormat.format(wallClock(availability.days[0].date)) !== monthFormat.format(wallClock(lastShown)) &&
-            ` – ${monthFormat.format(wallClock(lastShown))}`}
-        </p>
-        <div className={`mt-3 grid grid-cols-7 gap-1 text-center ${loading ? "opacity-50" : ""}`}>
-          {Array.from({ length: 7 }, (_, i) => (
-            <div key={i} className="pb-1 text-xs text-charcoal/60">
-              {weekdayFormat.format(wallClock(addDays("2026-10-04", i)))}
-            </div>
-          ))}
-          {Array.from({ length: firstWeekday }, (_, i) => (
-            <div key={`pad-${i}`} />
-          ))}
-          {availability.days.map((d) => {
-            const chosen = d.date === values.date;
-            const first = d.date.endsWith("-01") || d.date === availability.days[0].date;
-            return (
-              <button
-                key={d.date}
-                type="button"
-                disabled={!d.open}
-                onClick={() => pickDate(d.date)}
-                aria-pressed={chosen}
-                aria-label={longDate.format(wallClock(d.date))}
-                className={`relative aspect-square rounded-lg text-sm ${
-                  chosen
-                    ? "bg-saffron font-semibold text-white"
-                    : d.open
-                      ? "border border-saffron/50 bg-warm-white font-medium hover:bg-saffron/10"
-                      : "text-charcoal/30"
-                }`}
-              >
-                {first && <span className="absolute inset-x-0 top-0.5 text-[10px] leading-none opacity-70">{new Intl.DateTimeFormat(locale, { month: "short", timeZone: "UTC" }).format(wallClock(d.date))}</span>}
-                {dayFormat.format(wallClock(d.date))}
-              </button>
-            );
-          })}
-        </div>
-        {!availability.days.some((d) => d.open) && <p className="mt-3 text-sm text-charcoal/70">{t("noDays")}</p>}
-        <div className="mt-3 flex justify-between text-sm">
-          {canGoBack ? (
-            <button type="button" disabled={loading} onClick={() => showWeeks(addDays(availability.days[0].date, -35))} className="text-saffron-dark hover:underline">
-              ← {t("earlierDates")}
-            </button>
-          ) : (
-            <span />
-          )}
-          {lastShown < availability.lastDate && (
-            <button type="button" disabled={loading} onClick={() => showWeeks(addDays(lastShown, 1))} className="text-saffron-dark hover:underline">
-              {t("laterDates")} →
-            </button>
-          )}
-        </div>
-        {errorText("date")}
-      </section>
-
-      {values.date && (
-        <section aria-labelledby="pick-time">
-          <h2 id="pick-time" className="font-serif text-2xl text-maroon">
-            {t(isPuja ? "stepTimePuja" : "stepTime")}
-          </h2>
-          <p className="mt-1 text-sm text-charcoal/70">
-            {longDate.format(wallClock(values.date))} · {t("timeZone")}
-          </p>
-          {isPuja ? (
-            <label className="mt-3 block max-w-xs">
-              <span className="sr-only">{t("stepTimePuja")}</span>
-              <input type="time" value={values.time} onChange={(e) => set("time", e.target.value)} step={900} className={`${inputClass} ${invalid("time")}`} />
-            </label>
-          ) : (
-            <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
-              {(day?.slots ?? []).map((slot) => (
-                <button
-                  key={slot}
-                  type="button"
-                  aria-pressed={values.time === slot}
-                  onClick={() => set("time", slot)}
-                  className={`rounded-lg border px-2 py-2 text-sm font-medium ${
-                    values.time === slot ? "border-saffron bg-saffron text-white" : "border-saffron/50 bg-warm-white hover:bg-saffron/10"
-                  }`}
-                >
-                  {timeFormat.format(wallClock(values.date, slot))}
-                </button>
-              ))}
-            </div>
-          )}
-          {errorText("time")}
-        </section>
-      )}
+      <SlotPicker
+        availability={availability}
+        date={values.date}
+        time={values.time}
+        loading={loading}
+        onDate={pickDate}
+        onTime={(time) => set("time", time)}
+        onShowWeeks={showWeeks}
+        dateError={errorText("date")}
+        timeError={errorText("time")}
+        timeInvalid={Boolean(fieldErrors.time)}
+      />
 
       {values.date && values.time && (
         <form
