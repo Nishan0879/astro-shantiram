@@ -26,7 +26,7 @@ export default function HomePage({ params }: PageProps<"/[locale]">) {
           <p className={`mt-3 text-gold ${locale === "en" ? "tracking-widest" : ""}`}>{site("tagline")}</p>
           <p className="mx-auto mt-6 max-w-xl text-lg opacity-90">{t("intro")}</p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <Link href="/contact" className="rounded-full bg-saffron px-6 py-3 font-medium text-white hover:bg-saffron-dark">
+            <Link href="/book" className="rounded-full bg-saffron px-6 py-3 font-medium text-white hover:bg-saffron-dark">
               {t("ctaBook")}
             </Link>
             <Link href="/services" className="rounded-full border border-gold px-6 py-3 font-medium text-cream hover:bg-gold/20">

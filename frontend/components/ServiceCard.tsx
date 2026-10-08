@@ -19,9 +19,9 @@ export function durationLabel(t: ServicesT, minutes: number) {
   return rest === 0 ? t("durationHours", { hours }) : t("durationBoth", { hours, minutes: rest });
 }
 
-/** Where the request button goes until online booking exists: the contact form, filled in. */
-export function requestHref(service: Pick<ServiceSummary, "category" | "name">) {
-  return `/contact?${new URLSearchParams({ category: service.category, subject: service.name })}`;
+/** The booking page with this service already chosen. */
+export function requestHref(service: Pick<ServiceSummary, "slug">) {
+  return `/book?service=${encodeURIComponent(service.slug)}`;
 }
 
 export default function ServiceCard({ service }: { service: ServiceSummary }) {

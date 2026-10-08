@@ -342,3 +342,88 @@ export const serviceTranslations = pgTable(
 );
 
 export type Service = typeof services.$inferSelect;
+
+// When Guruji takes consultations, in US Central time. Two windows on one day leave a break between them.
+export const scheduleWindows = pgTable("schedule_windows", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  // 0 = Sunday … 6 = Saturday
+  weekday: integer("weekday").notNull(),
+  startTime: time("start_time").notNull(),
+  endTime: time("end_time").notNull(),
+});
+
+// One row of booking rules, edited in the admin
+export const bookingSettings = pgTable("booking_settings", {
+  id: integer("id").primaryKey().default(1),
+  // Offered start times are this many minutes apart
+  slotStepMinutes: integer("slot_step_minutes").notNull().default(30),
+  // For services with no length set
+  defaultDurationMinutes: integer("default_duration_minutes").notNull().default(60),
+  // Free time kept between two consultations
+  bufferMinutes: integer("buffer_minutes").notNull().default(0),
+  // Empty means no daily limit
+  maxPerDay: integer("max_per_day"),
+  // How far ahead visitors must book, and how far ahead they can
+  minNoticeHours: integer("min_notice_hours").notNull().default(24),
+  maxDaysAhead: integer("max_days_ahead").notNull().default(60),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type BookingSettings = typeof bookingSettings.$inferSelect;
+
+// Holidays and other days with no bookings at all
+export const blockedDates = pgTable("blocked_dates", {
+  date: date("date").primaryKey(),
+  reason: varchar("reason", { length: 200 }),
+});
+
+// Consultations take an open time from the schedule; pujas are requests for a preferred date and time
+export const appointmentKinds = ["consultation", "puja"] as const;
+export type AppointmentKind = (typeof appointmentKinds)[number];
+
+export const appointmentStatuses = ["requested", "confirmed", "rescheduled", "cancelled", "completed", "no_show"] as const;
+export type AppointmentStatus = (typeof appointmentStatuses)[number];
+// These still hold their time on the schedule
+export const activeStatuses = ["requested", "confirmed", "rescheduled"] as const satisfies readonly AppointmentStatus[];
+
+// Language the visitor wants to talk in
+export const appointmentLanguages = ["en", "ne", "hi", "sa"] as const;
+export type AppointmentLanguage = (typeof appointmentLanguages)[number];
+
+export const appointments = pgTable(
+  "appointments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    // Short code people can quote, like AS-7K3QPM
+    reference: varchar("reference", { length: 16 }).notNull().unique(),
+    serviceId: uuid("service_id").references(() => services.id, { onDelete: "set null" }),
+    // Copied at booking time, so the booking still reads right if the service changes
+    serviceName: varchar("service_name", { length: 200 }).notNull(),
+    kind: varchar("kind", { length: 16 }).$type<AppointmentKind>().notNull(),
+    // US Central date and start time
+    date: date("date").notNull(),
+    startTime: time("start_time").notNull(),
+    durationMinutes: integer("duration_minutes").notNull(),
+    priceCents: integer("price_cents"),
+    mode: varchar("mode", { length: 16 }).$type<ServiceMode>().notNull(),
+    language: varchar("language", { length: 8 }).$type<AppointmentLanguage>().notNull(),
+    status: varchar("status", { length: 16 }).$type<AppointmentStatus>().notNull().default("requested"),
+    name: varchar("name", { length: 120 }).notNull(),
+    email: varchar("email", { length: 254 }).notNull(),
+    phone: varchar("phone", { length: 40 }).notNull(),
+    // Where a home visit or puja happens
+    address: varchar("address", { length: 300 }),
+    gotra: varchar("gotra", { length: 100 }),
+    familyNames: text("family_names"),
+    notes: text("notes"),
+    // Zoom or other meeting link, added by the admin
+    meetingLink: varchar("meeting_link", { length: 500 }),
+    adminNote: text("admin_note"),
+    locale: varchar("locale", { length: 8 }).$type<ContentLocale>(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("appointments_date_idx").on(t.date)],
+);
+
+export type Appointment = typeof appointments.$inferSelect;

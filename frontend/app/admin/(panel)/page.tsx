@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { unstable_rethrow } from "next/navigation";
 import { Suspense } from "react";
 import { adminJson, type MessageList } from "@/lib/admin-api";
 
@@ -12,20 +13,33 @@ export default function OverviewPage() {
       <Suspense fallback={<p className="text-charcoal/60">Loading…</p>}>
         <Metrics />
       </Suspense>
-      <p className="mt-8 text-sm text-charcoal/60">
-        Appointments and the gallery will appear here as they are added.
-      </p>
     </>
   );
 }
 
 async function Metrics() {
-  const [{ counts, total }, { articles }, { events }] = await Promise.all([
+  const [{ counts, total }, { articles }, { events }, bookings] = await Promise.all([
     adminJson<MessageList>("/api/admin/contact-messages"),
     adminJson<{ articles: { status: string }[] }>("/api/admin/articles"),
     adminJson<{ events: { status: string; isUpcoming: boolean }[] }>("/api/admin/events"),
+    // Left out for accounts that do not manage appointments, and before the booking tables exist
+    adminJson<{ counts: { requests: number; today: number } }>("/api/admin/appointments?view=requests").catch((err) => {
+      unstable_rethrow(err);
+      return null;
+    }),
   ]);
   const cards = [
+    ...(bookings
+      ? [
+          {
+            label: "Bookings waiting for you",
+            value: bookings.counts.requests,
+            href: "/admin/appointments",
+            highlight: bookings.counts.requests > 0,
+          },
+          { label: "Bookings today", value: bookings.counts.today, href: "/admin/appointments?view=upcoming" },
+        ]
+      : []),
     { label: "New messages", value: counts.new, href: "/admin/messages?status=new", highlight: counts.new > 0 },
     { label: "Awaiting reply", value: counts.read, href: "/admin/messages?status=read" },
     { label: "All messages", value: total, href: "/admin/messages" },

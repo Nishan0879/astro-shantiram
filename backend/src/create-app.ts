@@ -4,6 +4,7 @@ import helmetImport from "helmet";
 import type { Database } from "./db/client.js";
 import { requireAuth, requireRole } from "./middleware/auth.js";
 import { errorHandler, notFound } from "./middleware/errors.js";
+import { adminAppointmentsRouter, adminScheduleRouter } from "./routes/admin-appointments.js";
 import { adminArticlesRouter } from "./routes/admin-articles.js";
 import { adminBooksRouter } from "./routes/admin-books.js";
 import { adminEventsRouter } from "./routes/admin-events.js";
@@ -13,6 +14,7 @@ import { adminMessagesRouter } from "./routes/admin-messages.js";
 import { adminServicesRouter } from "./routes/admin-services.js";
 import { adminVideosRouter } from "./routes/admin-videos.js";
 import { articlesRouter } from "./routes/articles.js";
+import { bookingRouter } from "./routes/booking.js";
 import { booksRouter } from "./routes/books.js";
 import { eventsRouter } from "./routes/events.js";
 import { galleryRouter } from "./routes/gallery.js";
@@ -43,6 +45,8 @@ export type AppDeps = {
   youtubeFetch?: typeof fetch;
   /** Today's date in US Central time; tests pin it */
   today?: () => string;
+  /** The current moment, for booking; tests pin it */
+  now?: () => Date;
 };
 
 export function createApp({
@@ -57,6 +61,7 @@ export function createApp({
   mediaProblem,
   youtubeFetch,
   today,
+  now,
 }: AppDeps) {
   const app = express();
 
@@ -96,6 +101,10 @@ export function createApp({
   app.use("/api/admin/horoscopes", ...contentEditors, adminHoroscopesRouter({ db }));
   app.use("/api/services", servicesRouter({ db }));
   app.use("/api/admin/services", ...contentEditors, adminServicesRouter({ db, media }));
+  const schedulers = [requireAuth(db, jwtSecret), requireRole("super_admin", "appointment_manager", "guru")];
+  app.use("/api/booking", bookingRouter({ db, mailer, notifyEmail, internalApiKey, now }));
+  app.use("/api/admin/appointments", ...schedulers, adminAppointmentsRouter({ db, mailer, now }));
+  app.use("/api/admin/schedule", ...schedulers, adminScheduleRouter({ db, now }));
   app.use(
     "/api/admin/contact-messages",
     requireAuth(db, jwtSecret),
