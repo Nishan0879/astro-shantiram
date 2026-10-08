@@ -57,6 +57,17 @@ describe("POST /api/contact", () => {
     expect(sent[0]).toMatchObject({ to: "guru@example.com", replyTo: "ram@example.com" });
   });
 
+  it("keeps a 10-digit phone number and rejects other lengths", async () => {
+    const ok = await request(app()).post("/api/contact").send({ ...valid, phone: "+1 (817) 555-1234" });
+    expect(ok.status).toBe(201);
+    const [row] = await db.select().from(schema.contactMessages);
+    expect(row.phone).toBe("817-555-1234");
+    expect((await request(app()).post("/api/contact").send({ ...valid, phone: "" })).status).toBe(201);
+    for (const phone of ["81755512", "81755512345", "28175551234"]) {
+      expect((await request(app()).post("/api/contact").send({ ...valid, phone })).status).toBe(400);
+    }
+  });
+
   it("rejects invalid input without saving", async () => {
     const res = await request(app())
       .post("/api/contact")

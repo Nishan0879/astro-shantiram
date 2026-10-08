@@ -93,7 +93,7 @@ describe("booking", () => {
   it("checks the details", async () => {
     const res = await book({ service: "kundali", date: "2026-10-13", time: "", mode: "", name: "", phone: "1" });
     expect(res.status).toBe(400);
-    expect(res.body.fieldErrors).toMatchObject({ time: "Choose a time", mode: "Choose how you would like to meet", name: "Add your name", phone: "Add a phone number" });
+    expect(res.body.fieldErrors).toMatchObject({ time: "Choose a time", mode: "Choose how you would like to meet", name: "Add your name", phone: "Enter a 10-digit phone number" });
     // Kundali is not offered as a home visit
     expect((await book({ service: "kundali", date: "2026-10-13", time: "18:00", mode: "home_visit", address: "1 Main St" })).body.fieldErrors).toEqual({
       mode: "Choose how you would like to meet",

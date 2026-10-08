@@ -1,7 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import { phoneInputProps, tenDigits } from "@/lib/phone";
 import { inquiryCategories } from "@/lib/services";
 import { submitContact, type ContactState } from "./actions";
 
@@ -20,6 +21,7 @@ export default function ContactForm({
     submitContact,
     { status: "idle" },
   );
+  const [phone, setPhone] = useState("");
 
   if (state.status === "success") {
     return <p className="rounded-lg bg-cream p-6 text-lg">{t("success")}</p>;
@@ -43,7 +45,7 @@ export default function ContactForm({
         </label>
         <label className="block">
           {t("phone")}
-          <input name="phone" type="tel" className={inputClass} />
+          <input name="phone" {...phoneInputProps} value={phone} onChange={(e) => setPhone(tenDigits(e.target.value))} className={`${inputClass} ${invalid("phone")}`} />
         </label>
         <label className="block">
           {t("category")}

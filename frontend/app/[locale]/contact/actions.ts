@@ -8,7 +8,11 @@ import { inquiryCategories } from "@/lib/services";
 const contactSchema = z.object({
   name: z.string().trim().min(1).max(120),
   email: z.email(),
-  phone: z.string().trim().max(40).optional(),
+  phone: z
+    .string()
+    .trim()
+    .regex(/^(\d{10})?$/)
+    .optional(),
   category: z.enum(inquiryCategories),
   subject: z.string().trim().min(1).max(200),
   message: z.string().trim().min(1).max(5000),
