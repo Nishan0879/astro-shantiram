@@ -6,6 +6,7 @@ import { requireAuth, requireRole } from "./middleware/auth.js";
 import { errorHandler, notFound } from "./middleware/errors.js";
 import { adminAppointmentsRouter, adminScheduleRouter } from "./routes/admin-appointments.js";
 import { adminArticlesRouter } from "./routes/admin-articles.js";
+import { adminEmailRouter } from "./routes/admin-email.js";
 import { adminBooksRouter } from "./routes/admin-books.js";
 import { adminEventsRouter } from "./routes/admin-events.js";
 import { adminGalleryRouter, adminUploadsRouter } from "./routes/admin-media.js";
@@ -105,6 +106,7 @@ export function createApp({
   app.use("/api/booking", bookingRouter({ db, mailer, notifyEmail, internalApiKey, now }));
   app.use("/api/admin/appointments", ...schedulers, adminAppointmentsRouter({ db, mailer, now }));
   app.use("/api/admin/schedule", ...schedulers, adminScheduleRouter({ db, now }));
+  app.use("/api/admin/email", requireAuth(db, jwtSecret), requireRole("super_admin"), adminEmailRouter({ mailer, notifyEmail }));
   app.use(
     "/api/admin/contact-messages",
     requireAuth(db, jwtSecret),
