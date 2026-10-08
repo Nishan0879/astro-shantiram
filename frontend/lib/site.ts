@@ -1,3 +1,6 @@
+/** The public address of the site, for search engines and link previews. Set SITE_URL once there is a custom domain. */
+export const siteUrl = (process.env.SITE_URL ?? "https://astro-shantiram.vercel.app").replace(/\/+$/, "");
+
 /** The astrologer is in Dallas-Fort Worth, so dates and times on the site are US Central. */
 export const siteTimeZone = "America/Chicago";
 

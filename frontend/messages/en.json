@@ -405,5 +405,15 @@
       "closed": "This service is not taking requests right now.",
       "failed": "Something went wrong. Please try again, or contact us."
     }
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "text": "We couldn't find that page. It may have moved, or the address may be mistyped.",
+    "home": "Go to the home page"
+  },
+  "PageError": {
+    "title": "Something went wrong",
+    "text": "This page didn't load. Please try again in a moment.",
+    "retry": "Try again"
   }
 }
